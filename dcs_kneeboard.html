@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,2103 +7,2115 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap');
 
+    /* ═══════════════════════════════════════════════
+       VARIABLES & RESET
+    ═══════════════════════════════════════════════ */
     :root {
-      --bg: #0c0e13;
-      --bg2: #13161f;
-      --bg3: #1a1e2b;
-      --bg4: #222840;
-      --border: #252a3a;
-      --border2: #323d58;
-      --accent: #4a9eff;
-      --accent-bg: rgba(74, 158, 255, .08);
-      --green: #3ddc84;
-      --green-bg: rgba(61, 220, 132, .08);
-      --orange: #ff9a3c;
-      --red: #ff4d4d;
-      --text: #b8c4da;
-      --text2: #6a7a9a;
-      --text3: #3a4460;
-      --white: #dce6f5;
-      --mono: 'Share Tech Mono', monospace;
-      --sans: 'Barlow', sans-serif;
-      --cond: 'Barlow Condensed', sans-serif;
+      --bg:        #0c0e13;
+      --bg2:       #13161f;
+      --bg3:       #1a1e2b;
+      --bg4:       #222840;
+      --border:    #252a3a;
+      --border2:   #323d58;
+      --accent:    #4a9eff;
+      --accent-bg: rgba(74,158,255,.08);
+      --green:     #3ddc84;
+      --green-bg:  rgba(61,220,132,.08);
+      --orange:    #ff9a3c;
+      --red:       #ff4d4d;
+      --text:      #b8c4da;
+      --text2:     #6a7a9a;
+      --text3:     #3a4460;
+      --white:     #dce6f5;
+      --mono:  'Share Tech Mono', monospace;
+      --sans:  'Barlow', sans-serif;
+      --cond:  'Barlow Condensed', sans-serif;
+
+      /* Dimensions A4 en pixels à 96 dpi */
+      --a4w: 794px;
+      --a4h: 1123px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; }
 
-    html,
-    body {
-      height: 100%;
-      overflow: hidden
-    }
+    /* ═══════════════════════════════════════════════
+       LAYOUT PRINCIPAL
+    ═══════════════════════════════════════════════ */
+    .app   { display: flex; height: 100vh; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 13px
-    }
-
-    /* ─── LAYOUT ─── */
-    .app {
-      display: flex;
-      height: 100vh
-    }
-
-    .left {
-      width: 320px;
-      min-width: 320px;
+    /* Panneau gauche (formulaires) */
+    .left  {
+      width: 320px; min-width: 320px;
       background: var(--bg2);
       border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden
+      display: flex; flex-direction: column; overflow: hidden;
     }
 
+    /* Panneau droit (aperçu) */
     .right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: #191b22
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; background: #191b22;
     }
 
-    /* ─── LEFT HEADER ─── */
+    /* ═══════════════════════════════════════════════
+       EN-TÊTE GAUCHE
+    ═══════════════════════════════════════════════ */
     .l-hdr {
       padding: 14px 16px 10px;
       background: var(--bg3);
       border-bottom: 1px solid var(--border);
-      flex-shrink: 0
+      flex-shrink: 0;
     }
+    .l-title { font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--white); }
+    .l-sub   { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
 
-    .l-title {
-      font-family: var(--cond);
-      font-size: 17px;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--white)
-    }
+    /* ═══════════════════════════════════════════════
+       SCROLLZONE GAUCHE
+    ═══════════════════════════════════════════════ */
+    .l-body { flex: 1; overflow-y: auto; padding: 10px; }
+    .l-body::-webkit-scrollbar { width: 3px; }
+    .l-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-    .l-sub {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
-      margin-top: 2px
-    }
-
-    /* ─── LEFT SCROLL ─── */
-    .l-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px
-    }
-
-    .l-body::-webkit-scrollbar {
-      width: 3px
-    }
-
-    .l-body::-webkit-scrollbar-thumb {
-      background: var(--border2);
-      border-radius: 2px
-    }
-
-    /* ─── ACCORDION ─── */
+    /* ═══════════════════════════════════════════════
+       ACCORDÉONS
+    ═══════════════════════════════════════════════ */
     .acc {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      margin-bottom: 8px;
-      overflow: hidden
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 5px; margin-bottom: 8px; overflow: hidden;
     }
-
-    .acc.locked {
-      opacity: .35;
-      pointer-events: none
-    }
+    .acc.locked { opacity: .35; pointer-events: none; }
 
     .acc-hdr {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 11px;
-      cursor: pointer;
-      user-select: none
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 11px; cursor: pointer; user-select: none;
     }
+    .acc-hdr:hover { background: var(--bg4); }
 
-    .acc-hdr:hover {
-      background: var(--bg4)
-    }
+    .acc-left  { display: flex; align-items: center; gap: 7px; }
+    .acc-title { font-family: var(--cond); font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text); }
+    .acc-badge { font-family: var(--mono); font-size: 9px; padding: 1px 6px; border-radius: 3px; background: var(--bg4); color: var(--text2); }
+    .acc-badge.ok   { background: var(--green-bg); color: var(--green); }
+    .acc-badge.info { background: var(--accent-bg); color: var(--accent); }
 
-    .acc-left {
-      display: flex;
-      align-items: center;
-      gap: 7px
-    }
+    .acc-arrow { font-size: 9px; color: var(--text3); transition: transform .18s; }
+    .acc.closed .acc-arrow  { transform: rotate(-90deg); }
+    .acc.closed .acc-body   { display: none; }
 
-    .acc-title {
-      font-family: var(--cond);
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: var(--text)
-    }
+    .acc-body { padding: 10px 11px; border-top: 1px solid var(--border); }
 
-    .acc-badge {
-      font-family: var(--mono);
-      font-size: 9px;
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: var(--bg4);
-      color: var(--text2)
-    }
+    /* ═══════════════════════════════════════════════
+       FORMULAIRE
+    ═══════════════════════════════════════════════ */
+    .row    { display: grid; gap: 7px; margin-bottom: 7px; }
+    .row.c1 { grid-template-columns: 1fr; }
+    .row.c2 { grid-template-columns: 1fr 1fr; }
+    .row.c3 { grid-template-columns: 1fr 1fr 1fr; }
 
-    .acc-badge.ok {
-      background: var(--green-bg);
-      color: var(--green)
-    }
-
-    .acc-badge.info {
-      background: var(--accent-bg);
-      color: var(--accent)
-    }
-
-    .acc-arrow {
-      font-size: 9px;
-      color: var(--text3);
-      transition: transform .18s
-    }
-
-    .acc.closed .acc-arrow {
-      transform: rotate(-90deg)
-    }
-
-    .acc.closed .acc-body {
-      display: none
-    }
-
-    .acc-body {
-      padding: 10px 11px;
-      border-top: 1px solid var(--border)
-    }
-
-    /* ─── FORM ─── */
-    .row {
-      display: grid;
-      gap: 7px;
-      margin-bottom: 7px
-    }
-
-    .row.c2 {
-      grid-template-columns: 1fr 1fr
-    }
-
-    .row.c3 {
-      grid-template-columns: 1fr 1fr 1fr
-    }
-
-    .row.c1 {
-      grid-template-columns: 1fr
-    }
-
-    .fld {
-      display: flex;
-      flex-direction: column;
-      gap: 3px
-    }
-
+    .fld { display: flex; flex-direction: column; gap: 3px; }
     .fld label {
-      font-size: 9.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      color: var(--text2);
-      display: flex;
-      align-items: center;
-      gap: 4px
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--text2);
+      display: flex; align-items: center; gap: 4px;
     }
-
     .atag {
-      font-size: 8px;
-      padding: 0 4px;
-      border-radius: 2px;
-      background: var(--green-bg);
-      color: var(--green);
-      font-family: var(--mono)
+      font-size: 8px; padding: 0 4px; border-radius: 2px;
+      background: var(--green-bg); color: var(--green); font-family: var(--mono);
     }
 
-    .fld input,
-    .fld textarea,
-    .fld select {
-      background: var(--bg);
-      border: 1px solid var(--border2);
-      border-radius: 3px;
-      color: var(--white);
-      font-family: var(--sans);
-      font-size: 11.5px;
-      padding: 4px 7px;
-      transition: border-color .12s;
-      width: 100%
+    .fld input, .fld textarea, .fld select {
+      background: var(--bg); border: 1px solid var(--border2);
+      border-radius: 3px; color: var(--white); font-family: var(--sans);
+      font-size: 11.5px; padding: 4px 7px; transition: border-color .12s; width: 100%;
     }
+    .fld input:focus, .fld textarea:focus { outline: none; border-color: var(--accent); }
+    .fld input[readonly] { color: var(--text2); border-color: var(--border); cursor: default; }
+    .fld textarea { resize: vertical; min-height: 48px; line-height: 1.5; }
 
-    .fld input:focus,
-    .fld textarea:focus {
-      outline: none;
-      border-color: var(--accent)
-    }
-
-    .fld input[readonly] {
-      color: var(--text2);
-      border-color: var(--border);
-      cursor: default
-    }
-
-    .fld textarea {
-      resize: vertical;
-      min-height: 48px;
-      line-height: 1.5
-    }
-
-    /* ─── BUTTONS ─── */
+    /* ═══════════════════════════════════════════════
+       BOUTONS
+    ═══════════════════════════════════════════════ */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 13px;
-      border-radius: 3px;
-      font-family: var(--cond);
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: none;
-      transition: all .12s
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 13px; border-radius: 3px;
+      font-family: var(--cond); font-size: 11.5px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      cursor: pointer; border: none; transition: all .12s;
     }
+    .btn-pri { background: var(--accent); color: #000; }
+    .btn-pri:hover { background: #6ab4ff; }
+    .btn-pri:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-sec { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+    .btn-sec:hover { background: var(--bg4); }
+    .btn-grn { background: var(--green-bg); color: var(--green); border: 1px solid rgba(61,220,132,.25); }
+    .btn-grn:hover { background: rgba(61,220,132,.14); }
+    .btn-red { background: rgba(255,77,77,.1); color: var(--red); border: 1px solid rgba(255,77,77,.25); }
+    .btn-red:hover { background: rgba(255,77,77,.18); }
+    .btn-xs { padding: 2px 7px; font-size: 10px; }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
 
-    .btn-pri {
-      background: var(--accent);
-      color: #000
-    }
-
-    .btn-pri:hover {
-      background: #6ab4ff
-    }
-
-    .btn-pri:disabled {
-      opacity: .35;
-      cursor: not-allowed
-    }
-
-    .btn-sec {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border2)
-    }
-
-    .btn-sec:hover {
-      background: var(--bg4)
-    }
-
-    .btn-grn {
-      background: var(--green-bg);
-      color: var(--green);
-      border: 1px solid rgba(61, 220, 132, .25)
-    }
-
-    .btn-grn:hover {
-      background: rgba(61, 220, 132, .14)
-    }
-
-    .btn-red {
-      background: rgba(255, 77, 77, .1);
-      color: var(--red);
-      border: 1px solid rgba(255, 77, 77, .25)
-    }
-
-    .btn-red:hover {
-      background: rgba(255, 77, 77, .18)
-    }
-
-    .btn-xs {
-      padding: 2px 7px;
-      font-size: 10px
-    }
-
-    .btn-sm {
-      padding: 4px 10px;
-      font-size: 11px
-    }
-
-    /* ─── UPLOAD ─── */
+    /* ═══════════════════════════════════════════════
+       ZONE UPLOAD
+    ═══════════════════════════════════════════════ */
     .upzone {
-      border: 1px dashed var(--border2);
-      border-radius: 5px;
-      padding: 18px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all .15s;
-      background: var(--bg)
+      border: 1px dashed var(--border2); border-radius: 5px;
+      padding: 18px 12px; text-align: center; cursor: pointer;
+      transition: all .15s; background: var(--bg);
     }
-
-    .upzone:hover,
-    .upzone.drag {
-      border-color: var(--accent);
-      background: rgba(74, 158, 255, .05)
-    }
-
-    .upzone input {
-      display: none
-    }
-
-    .upzone-ico {
-      font-size: 22px;
-      opacity: .4;
-      margin-bottom: 5px
-    }
-
-    .upzone-ttl {
-      font-family: var(--cond);
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--white)
-    }
-
-    .upzone-sub {
-      font-size: 11px;
-      color: var(--text2);
-      margin-top: 2px
-    }
+    .upzone:hover, .upzone.drag { border-color: var(--accent); background: rgba(74,158,255,.05); }
+    .upzone input { display: none; }
+    .upzone-ico { font-size: 22px; opacity: .4; margin-bottom: 5px; }
+    .upzone-ttl { font-family: var(--cond); font-size: 14px; font-weight: 700; color: var(--white); }
+    .upzone-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
     .file-ok {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      background: var(--green-bg);
-      border: 1px solid rgba(61, 220, 132, .2);
-      border-radius: 4px;
-      font-size: 11.5px;
-      color: var(--green)
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; background: var(--green-bg);
+      border: 1px solid rgba(61,220,132,.2); border-radius: 4px;
+      font-size: 11.5px; color: var(--green);
     }
 
-    /* ─── GROUP CARDS ─── */
-    .grd {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px
-    }
-
+    /* ═══════════════════════════════════════════════
+       CARTES GROUPE
+    ═══════════════════════════════════════════════ */
+    .grd  { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
     .gcard {
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 7px 9px;
-      cursor: pointer;
-      transition: all .12s;
-      background: var(--bg)
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 7px 9px; cursor: pointer; transition: all .12s; background: var(--bg);
     }
+    .gcard:hover { border-color: var(--border2); }
+    .gcard.on    { border-color: var(--accent); background: rgba(74,158,255,.07); }
+    .gcard.on .gc-cs { color: var(--accent); }
+    .gc-cs  { font-family: var(--cond); font-size: 13px; font-weight: 800; color: var(--white); }
+    .gc-s   { font-family: var(--mono); font-size: 10px; color: var(--text2); margin-top: 1px; }
+    .gc-tag { display: inline-block; font-size: 8.5px; padding: 1px 5px; border-radius: 2px; margin-top: 4px; font-weight: 700; font-family: var(--mono); }
+    .tpkg   { background: rgba(74,158,255,.12);  color: var(--accent); }
+    .tsup   { background: rgba(255,154,60,.12);  color: var(--orange); }
 
-    .gcard:hover {
-      border-color: var(--border2)
-    }
-
-    .gcard.on {
-      border-color: var(--accent);
-      background: rgba(74, 158, 255, .07)
-    }
-
-    .gcard.on .gc-cs {
-      color: var(--accent)
-    }
-
-    .gc-cs {
-      font-family: var(--cond);
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--white)
-    }
-
-    .gc-s {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text2);
-      margin-top: 1px
-    }
-
-    .gc-tag {
-      display: inline-block;
-      font-size: 8.5px;
-      padding: 1px 5px;
-      border-radius: 2px;
-      margin-top: 4px;
-      font-weight: 700;
-      font-family: var(--mono)
-    }
-
-    .tpkg {
-      background: rgba(74, 158, 255, .12);
-      color: var(--accent)
-    }
-
-    .tsup {
-      background: rgba(255, 154, 60, .12);
-      color: var(--orange)
-    }
-
-    /* ─── COMM ROWS ─── */
+    /* ═══════════════════════════════════════════════
+       LIGNES COMMS
+    ═══════════════════════════════════════════════ */
     .comm-grid {
-      display: grid;
-      grid-template-columns: 22px 70px 1fr 18px;
-      gap: 3px;
-      align-items: center;
-      margin-bottom: 3px
+      display: grid; grid-template-columns: 22px 70px 1fr 18px;
+      gap: 3px; align-items: center; margin-bottom: 3px;
     }
-
-    .comm-num {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text2);
-      text-align: center
-    }
-
+    .comm-num  { font-family: var(--mono); font-size: 10px; color: var(--text2); text-align: center; }
     .comm-grid input {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      color: var(--white);
-      font-family: var(--mono);
-      font-size: 10.5px;
-      padding: 2px 5px
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px;
+      color: var(--white); font-family: var(--mono); font-size: 10.5px; padding: 2px 5px;
     }
+    .comm-del  { color: var(--text3); cursor: pointer; text-align: center; font-size: 13px; line-height: 1; }
+    .comm-del:hover { color: var(--red); }
 
-    .comm-del {
-      color: var(--text3);
-      cursor: pointer;
-      text-align: center;
-      font-size: 13px;
-      line-height: 1
-    }
+    /* ═══════════════════════════════════════════════
+       PIED GAUCHE / BARRE DE PROGRESSION
+    ═══════════════════════════════════════════════ */
+    .l-foot { flex-shrink: 0; border-top: 1px solid var(--border); }
+    .progress  { height: 2px; background: var(--border); }
+    .prog-fill { height: 100%; background: var(--accent); transition: width .3s; width: 0; }
+    .status    { padding: 5px 11px; font-family: var(--mono); font-size: 10px; color: var(--text3); }
 
-    .comm-del:hover {
-      color: var(--red)
-    }
-
-    /* ─── STATUS ─── */
-    .l-foot {
-      flex-shrink: 0;
-      border-top: 1px solid var(--border)
-    }
-
-    .progress {
-      height: 2px;
-      background: var(--border)
-    }
-
-    .prog-fill {
-      height: 100%;
-      background: var(--accent);
-      transition: width .3s;
-      width: 0
-    }
-
-    .status {
-      padding: 5px 11px;
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3)
-    }
-
-    /* ─── RIGHT TOOLBAR ─── */
+    /* ═══════════════════════════════════════════════
+       BARRE D'OUTILS DROITE
+    ═══════════════════════════════════════════════ */
     .r-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; background: var(--bg2);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-
-    .r-bar-title {
-      font-family: var(--cond);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--text2)
-    }
-
-    .spacer {
-      flex: 1
-    }
-
-    .hint-edit {
-      font-size: 10px;
-      color: var(--text3);
-      font-style: italic;
-      font-family: var(--mono)
-    }
-
-    .page-dots {
-      display: flex;
-      gap: 3px;
-      align-items: center
-    }
-
+    .r-bar-title { font-family: var(--cond); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text2); }
+    .spacer { flex: 1; }
+    .hint-edit  { font-size: 10px; color: var(--text3); font-style: italic; font-family: var(--mono); }
+    .page-dots  { display: flex; gap: 3px; align-items: center; }
     .pdot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--border2);
-      cursor: pointer;
-      transition: background .15s
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border2); cursor: pointer; transition: background .15s;
     }
+    .pdot.on { background: var(--accent); }
 
-    .pdot.on {
-      background: var(--accent)
-    }
-
-    /* ─── PREVIEW SCROLL ─── */
+    /* ═══════════════════════════════════════════════
+       ZONE DE DÉFILEMENT APERÇU
+    ═══════════════════════════════════════════════ */
     .r-scroll {
-      flex: 1;
-      overflow: auto;
-      padding: 20px 24px;
-      background: #1c1e26
+      flex: 1; overflow: auto; padding: 24px;
+      background: #1c1e26;
     }
+    .r-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .r-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-    .r-scroll::-webkit-scrollbar {
-      width: 5px;
-      height: 5px
-    }
+    /* ─── Conteneur de toutes les paires de pages ─── */
+    .kb-pages { display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
 
-    .r-scroll::-webkit-scrollbar-thumb {
-      background: var(--border2);
-      border-radius: 3px
-    }
-
-    .kb-pages {
-      display: flex;
-      flex-direction: column;
-      gap: 22px
-    }
-
-    /* ─── KNEEBOARD PAGE ─── */
+    /* ─── Paire de pages (côte-à-côte en édition) ─── */
     .kb-wrap {
       position: relative;
-      margin-top: 26px;
       display: flex;
-      gap: 20px;
-      align-items: flex-start
+      gap: 14px;
+      align-items: flex-start;
+      margin-top: 20px;
+      /* Empêche le débordement horizontal du conteneur */
+      flex-shrink: 0;
     }
 
+    /* Étiquette de paire */
     .kb-plbl {
       position: absolute;
-      top: -18px;
-      left: 0;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--text3)
+      top: -16px; left: 0;
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--text3);
+      white-space: nowrap;
     }
 
+    /* ═══════════════════════════════════════════════
+       PAGE KNEEBOARD (A4 strict)
+       Dimensions fixes en px pour correspondre exactement
+       à 210mm × 297mm @ 96 dpi (1px = 0.264mm)
+    ═══════════════════════════════════════════════ */
     .kb-page {
-      width: 794px;
-      min-height: 1123px;
+      width:  var(--a4w);   /* 794px = 210mm */
+      height: var(--a4h);   /* 1123px = 297mm */
+      min-height: var(--a4h);
+      max-height: var(--a4h);
       background: #f4f1eb;
       font-family: 'Barlow Condensed', sans-serif;
       color: #111;
+      /* Overflow caché : garantit qu'aucun contenu ne dépasse la page */
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 6px 28px rgba(0, 0, 0, .55);
+      box-shadow: 0 6px 28px rgba(0,0,0,.55);
       border-radius: 3px;
+      /* Le contenu interne se répartit selon la hauteur disponible */
+      flex-shrink: 0;
     }
 
-    /* ── KNEEBOARD INTERNALS ── */
+    /* ═══════════════════════════════════════════════
+       COMPOSANTS INTERNES DE LA PAGE
+    ═══════════════════════════════════════════════ */
+
+    /* En-tête principal (bleu marine) */
     .kb-mhdr {
-      background: #0d1e3e;
-      color: #fff;
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between
+      background: #0d1e3e; color: #fff;
+      padding: 5px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
     }
+    .kb-mhdr-t { font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .kb-mhdr-r { font-size: 10px; opacity: .8; }
 
-    .kb-mhdr-t {
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: .07em;
-      text-transform: uppercase
-    }
-
-    .kb-mhdr-r {
-      font-size: 11px;
-      opacity: .8
-    }
-
+    /* Sous-en-tête de section (bleu intermédiaire) */
     .kb-shdr {
-      background: #1a3560;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 3px 8px
+      background: #1a3560; color: #fff;
+      font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 2px 8px;
+      flex-shrink: 0;
     }
 
+    /* Sous-en-tête secondaire (bleu plus clair) */
     .kb-mhdr2 {
-      background: #253d6b;
-      color: #fff;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 3px 7px
+      background: #253d6b; color: #fff;
+      font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+      padding: 2px 7px;
+      flex-shrink: 0;
     }
 
-    .kb-grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr
-    }
+    /* Grilles de cellules */
+    .kb-grid2  { display: grid; grid-template-columns: 1fr 1fr; }
+    .kb-grid3  { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    .kb-grid4  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .kb-grid5  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
 
-    .kb-grid3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr
-    }
-
-    .kb-grid4 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr
-    }
-
-    .kb-grid33 {
-      display: grid;
-      grid-template-columns: 55% 45%
-    }
-
+    /* Cellule individuelle */
     .kb-c {
       border: .5px solid #c0bdb5;
-      padding: 3px 6px;
-      min-height: 22px;
-      position: relative
+      padding: 2px 5px;
+      overflow: hidden;
     }
-
     .kb-cl {
-      display: block;
-      font-size: 7.5px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-bottom: 1px;
-      font-weight: 600
+      display: block; font-size: 7px; color: #666;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: 1px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
     .kb-cv {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: #0d1e3e;
-      line-height: 1.3;
-      min-height: 14px
+      display: block; font-size: 11px; font-weight: 700;
+      color: #0d1e3e; line-height: 1.25;
+      min-height: 13px;
+      /* Empêche le texte de faire grossir la cellule */
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
-    /* Always editable */
-    .kb-cv[contenteditable] {
-      cursor: text;
-      border-radius: 1px;
-      transition: background .1s, outline .1s
-    }
+    /* Champs éditables dans la page */
+    .kb-cv[contenteditable] { cursor: text; border-radius: 1px; transition: background .1s, outline .1s; }
+    .kb-cv[contenteditable]:hover  { background: rgba(74,158,255,.14); outline: 1px dashed rgba(74,158,255,.4); }
+    .kb-cv[contenteditable]:focus  { background: rgba(74,158,255,.20); outline: 1.5px solid rgba(74,158,255,.7); white-space: normal; overflow: visible; }
 
-    .kb-cv[contenteditable]:hover {
-      background: rgba(74, 158, 255, .14);
-      outline: 1px dashed rgba(74, 158, 255, .4)
-    }
-
-    .kb-cv[contenteditable]:focus {
-      background: rgba(74, 158, 255, .2);
-      outline: 1.5px solid rgba(74, 158, 255, .7);
-      outline-offset: 0
-    }
-
+    /* ─── TABLEAUX ─── */
     .kb-tbl {
-      width: 100%;
-      border-collapse: collapse
+      width: 100%; border-collapse: collapse;
+      /* Hauteur fixée par le conteneur parent, jamais par le contenu */
+      table-layout: fixed;
     }
-
     .kb-tbl th {
-      background: #2a3f6f;
-      color: #fff;
-      font-size: 8.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      padding: 3px 5px;
-      text-align: left;
-      white-space: nowrap
+      background: #2a3f6f; color: #fff;
+      font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      padding: 2px 4px; text-align: left; white-space: nowrap; overflow: hidden;
     }
-
     .kb-tbl td {
-      font-size: 10.5px;
-      padding: 3px 5px;
-      border-bottom: .5px solid #ddd;
-      color: #111;
-      vertical-align: middle;
-      height: 19px
+      font-size: 9.5px; padding: 2px 4px;
+      border-bottom: .5px solid #ddd; color: #111;
+      vertical-align: middle; height: 17px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
+    .kb-tbl tr:nth-child(even) td { background: #ece9e1; }
 
-    .kb-tbl tr:nth-child(even) td {
-      background: #ece9e1
-    }
+    /* Cellules éditables dans les tableaux */
+    .kb-tbl td[contenteditable] { cursor: text; transition: background .1s; }
+    .kb-tbl td[contenteditable]:hover  { background: rgba(74,158,255,.13); }
+    .kb-tbl td[contenteditable]:focus  { background: rgba(74,158,255,.20); outline: 1px solid rgba(74,158,255,.6); white-space: normal; overflow: visible; }
 
-    /* Editable td */
-    .kb-tbl td[contenteditable] {
-      cursor: text;
-      transition: background .1s
-    }
-
-    .kb-tbl td[contenteditable]:hover {
-      background: rgba(74, 158, 255, .13)
-    }
-
-    .kb-tbl td[contenteditable]:focus {
-      background: rgba(74, 158, 255, .2);
-      outline: 1px solid rgba(74, 158, 255, .6)
-    }
-
-    /* Add / del row buttons */
+    /* Boutons +/- dans les tableaux */
     .kb-tbl td.row-add {
-      background: rgba(61, 220, 132, .06);
-      color: #3ddc84;
-      text-align: center;
-      font-size: 14px;
-      cursor: pointer;
-      width: 18px;
-      padding: 0
+      background: rgba(61,220,132,.06); color: #3ddc84;
+      text-align: center; font-size: 13px; cursor: pointer; width: 16px; padding: 0;
     }
-
     .kb-tbl td.row-del {
-      background: rgba(255, 77, 77, .06);
-      color: rgba(255, 77, 77, .5);
-      text-align: center;
-      font-size: 14px;
-      cursor: pointer;
-      width: 14px;
-      padding: 0
+      background: rgba(255,77,77,.06); color: rgba(255,77,77,.5);
+      text-align: center; font-size: 13px; cursor: pointer; width: 14px; padding: 0;
+    }
+    .kb-tbl td.row-del:hover { color: #ff4d4d; background: rgba(255,77,77,.12); }
+    .kb-tbl td.row-add:hover { background: rgba(61,220,132,.14); }
+
+    /* Séparateur horizontal */
+    .kb-sep { height: .5px; background: #c0bdb5; flex-shrink: 0; }
+
+    /* Zone flex qui absorbe l'espace restant */
+    .kb-fill {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; min-height: 0;
+    }
+    .kb-fill > .kb-c { flex: 1; overflow: hidden; }
+
+    /* Zone contenteditable libre (notes, croquis) */
+    .kb-free {
+      flex: 1; padding: 6px;
+      font-size: 10.5px; color: #0d1e3e;
+      overflow: hidden; border: .5px solid #c0bdb5;
+    }
+    .kb-free:focus { outline: 1.5px solid rgba(74,158,255,.6); }
+    .kb-free:empty::before { content: attr(data-placeholder); color: #aaa; font-style: italic; }
+
+    /* Wrapper pour un tableau avec scroll interne si dépassement */
+    .kb-tbl-wrap {
+      overflow: hidden;
+      flex-shrink: 0;
     }
 
-    .kb-tbl td.row-del:hover {
-      color: #ff4d4d;
-      background: rgba(255, 77, 77, .12)
-    }
-
-    .kb-tbl td.row-add:hover {
-      background: rgba(61, 220, 132, .14)
-    }
-
-    .kb-sep {
-      height: .5px;
-      background: #c0bdb5
-    }
-
-    /* Flex-fill zone for auto-expanding blocks */
-    .kb-flex-fill {
-      flex: 1;
-      display: flex;
-      flex-direction: column
-    }
-
-    .kb-flex-fill>.kb-c {
-      flex: 1
-    }
-
-    /* ─── PRINT ─── */
+    /* ═══════════════════════════════════════════════
+       IMPRESSION
+    ═══════════════════════════════════════════════ */
     @media print {
-      @page {
-        size: A4 portrait;
-        margin: 0
-      }
+      @page { size: A4 portrait; margin: 0; }
 
-      body {
-        background: #fff;
-        overflow: auto
-      }
+      body { background: #fff; overflow: auto; }
+      .app  { display: block; height: auto; }
+      .left, .r-bar { display: none !important; }
 
-      .app {
-        display: block;
-        height: auto
-      }
+      .right   { overflow: visible; }
+      .r-scroll { padding: 0; background: #fff; overflow: visible; }
+      .kb-pages { gap: 0; }
 
-      .left,
-      .r-bar {
-        display: none !important
-      }
-
-      .right {
-        overflow: visible;
-        width: 210mm
-      }
-
-      .r-scroll {
-        padding: 0;
-        background: #fff;
-        overflow: visible
-      }
-
-      .kb-pages {
-        gap: 0
-      }
-
-      /* Chaque kb-page = 1 page imprimée A4 */
+      /* Chaque .kb-page = une page imprimée A4 */
       .kb-wrap {
-        margin: 0;
-        padding: 0;
-        display: block
+        display: block;
+        margin: 0; padding: 0;
       }
-
-      .kb-plbl {
-        display: none
-      }
-
+      .kb-plbl { display: none; }
       .kb-page {
-        box-shadow: none;
-        border-radius: 0;
-        width: 210mm;
-        min-height: 297mm;
-        height: 297mm;
-        page-break-after: always;
-        break-after: page;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        box-shadow: none; border-radius: 0;
+        width: 210mm; height: 297mm;
+        max-height: 297mm; min-height: 297mm;
+        page-break-after: always; break-after: page;
+        page-break-inside: avoid; break-inside: avoid;
         margin: 0;
-        padding: 6mm;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
       }
+      .kb-page:last-child { page-break-after: avoid; break-after: avoid; }
 
-      .kb-page:last-child {
-        page-break-after: avoid;
-        break-after: avoid
-      }
-
+      /* Suppression des effets de survol à l'impression */
       .kb-cv[contenteditable]:hover,
       .kb-cv[contenteditable]:focus,
       .kb-tbl td[contenteditable]:hover,
       .kb-tbl td[contenteditable]:focus {
-        background: transparent !important;
-        outline: none !important
+        background: transparent !important; outline: none !important;
       }
 
+      /* Masquer les boutons de modification */
       .kb-tbl td.row-add,
       .kb-tbl td.row-del,
-      .no-print {
-        display: none !important
-      }
+      .no-print { display: none !important; }
 
-      input[list] {
-        border: none !important;
-        outline: none !important;
-        background: transparent !important
-      }
+      /* Masquer les inputs de datalist (afficher juste le texte) */
+      .af-input { border: none !important; outline: none !important; background: transparent !important; }
     }
   </style>
-  <!-- Bibliothèques externes : html2canvas (capture page) + jsPDF (export PDF) -->
+
+  <!-- Bibliothèques (chargées depuis CDN fiables) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
-  <div class="app">
+<div class="app">
 
-    <!-- ═══════════════════ LEFT ═══════════════════ -->
-    <div class="left">
-      <div class="l-hdr">
-        <div class="l-title">DCS Kneeboard</div>
-        <div class="l-sub">generator · v3 · mission card builder</div>
-      </div>
-
-      <div class="l-body">
-
-        <!-- LOAD MIZ -->
-        <div class="acc" id="ac-miz">
-          <div class="acc-hdr" onclick="tog('ac-miz')">
-            <div class="acc-left"><span class="acc-title">Mission .miz</span><span class="acc-badge" id="bdg-miz">en
-                attente</span></div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div class="upzone" id="upzone" onclick="document.getElementById('miz-inp').click()">
-              <input type="file" id="miz-inp" accept=".miz">
-              <div class="upzone-ico">⬆</div>
-              <div class="upzone-ttl">Glisser ou cliquer</div>
-              <div class="upzone-sub">Fichier .miz DCS</div>
-            </div>
-            <div id="file-ok" class="file-ok" style="display:none">
-              <span>✓</span><span id="file-name" style="flex:1;font-size:11px"></span>
-              <button class="btn btn-sec btn-xs" onclick="resetApp()">×</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- PACKAGE -->
-        <div class="acc locked" id="ac-pkg">
-          <div class="acc-hdr" onclick="tog('ac-pkg')">
-            <div class="acc-left"><span class="acc-title">Package</span><span class="acc-badge" id="bdg-pkg">—</span>
-            </div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div class="row c1" style="margin-bottom:10px">
-              <div class="fld">
-                <label>Filtre Coalition</label>
-                <select id="sel-coalition" onchange="changeCoalition()">
-                  <option value="blue" selected>Bleue</option>
-                  <option value="red">Rouge</option>
-                  <option value="neutral">Neutre</option>
-                  <option value="all">Toutes</option>
-                </select>
-              </div>
-            </div>
-            <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin-bottom:6px">EXÉCUTION — cliquer
-              pour sélectionner</div>
-            <div class="grd" id="pkg-grd"></div>
-            <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin:10px 0 6px">SUPPORTS</div>
-            <div class="grd" id="sup-grd"></div>
-            <div id="no-sup" style="font-size:11px;color:var(--text3);font-style:italic;padding:4px 0">Aucun support
-              détecté</div>
-          </div>
-        </div>
-
-        <!-- BRIEFING -->
-        <div class="acc locked" id="ac-brief">
-          <div class="acc-hdr" onclick="tog('ac-brief')">
-            <div class="acc-left"><span class="acc-title">Briefing</span></div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div class="row c2">
-              <div class="fld"><label>Nom mission</label><input id="f-nom" placeholder="Op. CYCLONE" oninput="upd()">
-              </div>
-              <div class="fld"><label>Date IRL</label><input id="f-irl" placeholder="28/03/2026" oninput="upd()"></div>
-            </div>
-            <div class="row c2">
-              <div class="fld"><label>Théâtre <span class="atag">auto</span></label><input id="f-carte" readonly></div>
-              <div class="fld"><label>Date IVL <span class="atag">auto</span></label><input id="f-ivl" readonly></div>
-            </div>
-            <div class="row c1">
-              <div class="fld"><label>Objectifs principaux</label><textarea id="f-obj1"
-                  placeholder="Neutraliser batteries SAM..." oninput="upd()"></textarea></div>
-              <div class="fld"><label>Objectifs secondaires</label><textarea id="f-obj2"
-                  placeholder="Reco zone Bravo..." oninput="upd()"></textarea></div>
-              <div class="fld"><label>Exécution</label><textarea id="f-exec" placeholder="COLT attaque H+15..."
-                  oninput="upd()"></textarea></div>
-              <div class="fld"><label>Consignes pénétration</label><textarea id="f-pen"
-                  placeholder="EMCON jusqu'au IP..." oninput="upd()"></textarea></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- METEO -->
-        <div class="acc locked" id="ac-met">
-          <div class="acc-hdr" onclick="tog('ac-met')">
-            <div class="acc-left"><span class="acc-title">Météo</span></div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div class="row c2">
-              <div class="fld"><label>Lever soleil <span class="atag">auto</span></label><input id="f-sr" readonly>
-              </div>
-              <div class="fld"><label>Coucher soleil <span class="atag">auto</span></label><input id="f-ss" readonly>
-              </div>
-              <div class="fld"><label>Vents <span class="atag">auto</span></label><input id="f-wind" readonly></div>
-              <div class="fld"><label>Temp. <span class="atag">auto</span></label><input id="f-temp" readonly></div>
-              <div class="fld"><label>QNH <span class="atag">auto</span></label><input id="f-qnh" readonly></div>
-              <div class="fld"><label>Visibilité <span class="atag">auto</span></label><input id="f-vis" readonly></div>
-            </div>
-            <div class="row c1">
-              <div class="fld"><label>Nuages / Plafond</label><input id="f-clouds" placeholder="BKN 3000ft / OVC 8000ft"
-                  oninput="upd()"></div>
-              <div class="fld"><label>Notes</label><input id="f-mnotes" placeholder="Givre FL150+..." oninput="upd()">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- INTEL -->
-        <div class="acc locked" id="ac-intel">
-          <div class="acc-hdr" onclick="tog('ac-intel')">
-            <div class="acc-left"><span class="acc-title">Intel / ROE</span></div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div class="row c2">
-              <div class="fld"><label>Bullseye <span class="atag">auto</span></label><input id="f-bull" readonly></div>
-              <div class="fld"><label>CAP Zone</label><input id="f-cap" placeholder="N38°00 / E044°30" oninput="upd()">
-              </div>
-            </div>
-            <div class="row c1">
-              <div class="fld"><label>Menaces AAA/SAM</label><textarea id="f-sam"
-                  placeholder="SA-10 nord, ZSU-23 zone cible..." oninput="upd()"></textarea></div>
-              <div class="fld"><label>Menaces aériennes</label><textarea id="f-air" placeholder="MiG-29 Beslan AB..."
-                  oninput="upd()"></textarea></div>
-              <div class="fld"><label>ROE</label><textarea id="f-roe"
-                  placeholder="ROE DELTA — feu autorisé sur tout aéronef hostile..." oninput="upd()"></textarea></div>
-              <div class="fld"><label>Limitation armement</label><textarea id="f-armt"
-                  placeholder="PGM sur approbation JTAC..." oninput="upd()"></textarea></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- COMMS -->
-        <div class="acc locked" id="ac-comms">
-          <div class="acc-hdr" onclick="tog('ac-comms')">
-            <div class="acc-left"><span class="acc-title">Fréquences COMMS</span></div>
-            <span class="acc-arrow">▼</span>
-          </div>
-          <div class="acc-body">
-            <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin-bottom:5px">UHF · Radio 1</div>
-            <div id="uhf-rows"></div>
-            <button class="btn btn-sec btn-xs" style="margin-top:4px" onclick="addComm('uhf')">+ UHF</button>
-            <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin:10px 0 5px">VHF · Radio 2</div>
-            <div id="vhf-rows"></div>
-            <button class="btn btn-sec btn-xs" style="margin-top:4px" onclick="addComm('vhf')">+ VHF</button>
-          </div>
-        </div>
-
-      </div><!-- l-body -->
-
-      <div class="l-foot">
-        <div class="progress">
-          <div class="prog-fill" id="pfill"></div>
-        </div>
-        <div class="status" id="sbar">En attente d'un fichier .miz</div>
-      </div>
+  <!-- ═══════════════════ PANNEAU GAUCHE ═══════════════════ -->
+  <div class="left">
+    <div class="l-hdr">
+      <div class="l-title">DCS Kneeboard</div>
+      <div class="l-sub">generator · v4 · mission card builder</div>
     </div>
 
-    <!-- ═══════════════════ RIGHT ═══════════════════ -->
-    <div class="right">
-      <div class="r-bar">
-        <span class="r-bar-title">Aperçu kneeboard</span>
-        <span class="hint-edit">✏ Cliquer sur n'importe quel champ pour éditer · + / − pour ajouter/supprimer des
-          lignes</span>
-        <div class="spacer"></div>
-        <div class="page-dots" id="pdots"></div>
-        <div class="spacer"></div>
-        <button class="btn btn-sec btn-sm" onclick="genHTML()">🌐 Exporter HTML</button>
-        <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Imprimer / PDF navigateur</button>
-        <button class="btn btn-pri btn-sm" id="btn-pdf" disabled onclick="genPDF()">⬇ Télécharger PDF</button>
+    <div class="l-body">
+
+      <!-- SECTION : Chargement du fichier mission -->
+      <div class="acc" id="ac-miz">
+        <div class="acc-hdr" onclick="toggleAcc('ac-miz')">
+          <div class="acc-left">
+            <span class="acc-title">Mission .miz</span>
+            <span class="acc-badge" id="bdg-miz">en attente</span>
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="upzone" id="upzone" onclick="document.getElementById('miz-inp').click()">
+            <input type="file" id="miz-inp" accept=".miz">
+            <div class="upzone-ico">⬆</div>
+            <div class="upzone-ttl">Glisser ou cliquer</div>
+            <div class="upzone-sub">Fichier .miz DCS</div>
+          </div>
+          <div id="file-ok" class="file-ok" style="display:none">
+            <span>✓</span>
+            <span id="file-name" style="flex:1;font-size:11px"></span>
+            <button class="btn btn-sec btn-xs" onclick="resetApp()">×</button>
+          </div>
+        </div>
       </div>
 
-      <div class="r-scroll" id="rscroll">
-        <div class="kb-pages" id="kbpages">
-          <div
-            style="text-align:center;padding:80px 20px;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:.1em">
-            CHARGEZ UN FICHIER .MIZ POUR COMMENCER
+      <!-- SECTION : Package de vol -->
+      <div class="acc locked" id="ac-pkg">
+        <div class="acc-hdr" onclick="toggleAcc('ac-pkg')">
+          <div class="acc-left">
+            <span class="acc-title">Package</span>
+            <span class="acc-badge" id="bdg-pkg">—</span>
           </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="row c1" style="margin-bottom:10px">
+            <div class="fld">
+              <label>Filtre Coalition</label>
+              <select id="sel-coalition" onchange="changeCoalition()">
+                <option value="blue"    selected>Bleue</option>
+                <option value="red">Rouge</option>
+                <option value="neutral">Neutre</option>
+                <option value="all">Toutes</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin-bottom:6px">
+            EXÉCUTION — cliquer pour sélectionner
+          </div>
+          <div class="grd" id="pkg-grd"></div>
+          <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin:10px 0 6px">SUPPORTS</div>
+          <div class="grd" id="sup-grd"></div>
+          <div id="no-sup" style="font-size:11px;color:var(--text3);font-style:italic;padding:4px 0">
+            Aucun support détecté
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION : Briefing -->
+      <div class="acc locked" id="ac-brief">
+        <div class="acc-hdr" onclick="toggleAcc('ac-brief')">
+          <div class="acc-left"><span class="acc-title">Briefing</span></div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="row c2">
+            <div class="fld"><label>Nom mission</label><input id="f-nom" placeholder="Op. CYCLONE" oninput="syncField('nom','f-nom');renderPreview()"></div>
+            <div class="fld"><label>Date IRL</label><input id="f-irl" placeholder="28/03/2026"   oninput="syncField('irl','f-irl');renderPreview()"></div>
+          </div>
+          <div class="row c2">
+            <div class="fld"><label>Théâtre <span class="atag">auto</span></label><input id="f-carte" readonly></div>
+            <div class="fld"><label>Date IVL <span class="atag">auto</span></label><input id="f-ivl"   readonly></div>
+          </div>
+          <div class="row c1">
+            <div class="fld"><label>Objectifs principaux</label>   <textarea id="f-obj1" placeholder="Neutraliser batteries SAM..." oninput="syncField('obj1','f-obj1');renderPreview()"></textarea></div>
+            <div class="fld"><label>Objectifs secondaires</label>  <textarea id="f-obj2" placeholder="Reco zone Bravo..."         oninput="syncField('obj2','f-obj2');renderPreview()"></textarea></div>
+            <div class="fld"><label>Exécution</label>              <textarea id="f-exec" placeholder="COLT attaque H+15..."       oninput="syncField('exec','f-exec');renderPreview()"></textarea></div>
+            <div class="fld"><label>Consignes pénétration</label>  <textarea id="f-pen"  placeholder="EMCON jusqu'au IP..."       oninput="syncField('pen','f-pen');renderPreview()"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION : Météo -->
+      <div class="acc locked" id="ac-met">
+        <div class="acc-hdr" onclick="toggleAcc('ac-met')">
+          <div class="acc-left"><span class="acc-title">Météo</span></div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="row c2">
+            <div class="fld"><label>Lever soleil <span class="atag">auto</span></label>  <input id="f-sr"   readonly></div>
+            <div class="fld"><label>Coucher soleil <span class="atag">auto</span></label><input id="f-ss"   readonly></div>
+            <div class="fld"><label>Vents <span class="atag">auto</span></label>          <input id="f-wind" readonly></div>
+            <div class="fld"><label>Temp. <span class="atag">auto</span></label>          <input id="f-temp" readonly></div>
+            <div class="fld"><label>QNH <span class="atag">auto</span></label>            <input id="f-qnh"  readonly></div>
+            <div class="fld"><label>Visibilité <span class="atag">auto</span></label>     <input id="f-vis"  readonly></div>
+          </div>
+          <div class="row c1">
+            <div class="fld"><label>Nuages / Plafond</label><input id="f-clouds" placeholder="BKN 3000ft / OVC 8000ft" oninput="syncField('clouds','f-clouds');renderPreview()"></div>
+            <div class="fld"><label>Notes</label>           <input id="f-mnotes" placeholder="Givre FL150+..."          oninput="syncField('mnotes','f-mnotes');renderPreview()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION : Intel / ROE -->
+      <div class="acc locked" id="ac-intel">
+        <div class="acc-hdr" onclick="toggleAcc('ac-intel')">
+          <div class="acc-left"><span class="acc-title">Intel / ROE</span></div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="row c2">
+            <div class="fld"><label>Bullseye <span class="atag">auto</span></label><input id="f-bull" readonly></div>
+            <div class="fld"><label>CAP Zone</label><input id="f-cap" placeholder="N38°00 / E044°30" oninput="syncField('cap','f-cap');renderPreview()"></div>
+          </div>
+          <div class="row c1">
+            <div class="fld"><label>Menaces AAA/SAM</label>    <textarea id="f-sam"  placeholder="SA-10 nord, ZSU-23 zone cible..."  oninput="syncField('sam','f-sam');renderPreview()"></textarea></div>
+            <div class="fld"><label>Menaces aériennes</label>  <textarea id="f-air"  placeholder="MiG-29 Beslan AB..."               oninput="syncField('air','f-air');renderPreview()"></textarea></div>
+            <div class="fld"><label>ROE</label>                <textarea id="f-roe"  placeholder="ROE DELTA — feu autorisé..."        oninput="syncField('roe','f-roe');renderPreview()"></textarea></div>
+            <div class="fld"><label>Limitation armement</label><textarea id="f-armt" placeholder="PGM sur approbation JTAC..."        oninput="syncField('armt','f-armt');renderPreview()"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION : Comms -->
+      <div class="acc locked" id="ac-comms">
+        <div class="acc-hdr" onclick="toggleAcc('ac-comms')">
+          <div class="acc-left"><span class="acc-title">Fréquences COMMS</span></div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin-bottom:5px">UHF · Radio 1</div>
+          <div id="uhf-rows"></div>
+          <button class="btn btn-sec btn-xs" style="margin-top:4px" onclick="addComm('uhf')">+ UHF</button>
+          <div style="font-size:9px;color:var(--text2);font-family:var(--mono);margin:10px 0 5px">VHF · Radio 2</div>
+          <div id="vhf-rows"></div>
+          <button class="btn btn-sec btn-xs" style="margin-top:4px" onclick="addComm('vhf')">+ VHF</button>
+        </div>
+      </div>
+
+    </div><!-- /l-body -->
+
+    <div class="l-foot">
+      <div class="progress"><div class="prog-fill" id="pfill"></div></div>
+      <div class="status" id="sbar">En attente d'un fichier .miz</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ PANNEAU DROIT ═══════════════════ -->
+  <div class="right">
+    <div class="r-bar">
+      <span class="r-bar-title">Aperçu kneeboard</span>
+      <span class="hint-edit">✏ Cliquer sur n'importe quel champ pour éditer</span>
+      <div class="spacer"></div>
+      <div class="page-dots" id="pdots"></div>
+      <div class="spacer"></div>
+      <button class="btn btn-sec btn-sm" onclick="genHTML()">🌐 HTML</button>
+      <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Imprimer</button>
+      <button class="btn btn-pri btn-sm" id="btn-pdf" disabled onclick="genPDF()">⬇ PDF</button>
+    </div>
+
+    <div class="r-scroll" id="rscroll">
+      <div class="kb-pages" id="kbpages">
+        <div style="text-align:center;padding:80px 20px;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:.1em">
+          CHARGEZ UN FICHIER .MIZ POUR COMMENCER
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- app -->
+</div><!-- /app -->
 
-  <script src="dcs_airfields.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    // ════════════════════════════════════════════
-    // STATE
-    // ════════════════════════════════════════════
-    let miz = null, selPkg = new Set(), selSup = new Set();
-    let uhfComms = [], vhfComms = [];
-    const fd = {
-      nom: '', irl: '', carte: '', ivl: '', obj1: '', obj2: '', exec: '', pen: '',
-      sr: '', ss: '', wind: '', temp: '', qnh: '', vis: '', clouds: '', mnotes: '',
-      bull: '', cap: '', sam: '', air: '', roe: '', armt: ''
-    };
+<!-- Données terrains (fichier externe) -->
+<script src="dcs_airfields.js"></script>
 
-    // Per-group waypoint state (editable live)
-    // Stored as arrays keyed by group name
-    const groupWPs = {};
-    const groupLoadout = {};
+<script>
+/* ════════════════════════════════════════════════════════════════
+   ÉTAT GLOBAL
+   ════════════════════════════════════════════════════════════════ */
+let miz = null;
+const selPkg = new Set();
+const selSup = new Set();
+let uhfComms = [];
+let vhfComms = [];
 
-    // ════════════════════════════════════════════
-    // ACCORDION
-    // ════════════════════════════════════════════
-    function tog(id) {
-      const el = document.getElementById(id);
-      if (!el.classList.contains('locked')) el.classList.toggle('closed');
-    }
-    function unlock(ids) { ids.forEach(id => document.getElementById(id).classList.remove('locked')) }
+/**
+ * Données du formulaire (valeurs saisies dans le panneau gauche).
+ * Toutes les valeurs sont des chaînes brutes (jamais du HTML).
+ */
+const fd = {
+  nom:'', irl:'', carte:'', ivl:'',
+  obj1:'', obj2:'', exec:'', pen:'',
+  sr:'', ss:'', wind:'', temp:'', qnh:'', vis:'', clouds:'', mnotes:'',
+  bull:'', cap:'', sam:'', air:'', roe:'', armt:''
+};
 
-    // ════════════════════════════════════════════
-    // MIZ FILE
-    // ════════════════════════════════════════════
-    const uz = document.getElementById('upzone');
-    document.getElementById('miz-inp').onchange = e => { if (e.target.files[0]) loadMiz(e.target.files[0]) };
-    uz.ondragover = e => { e.preventDefault(); uz.classList.add('drag') };
-    uz.ondragleave = () => uz.classList.remove('drag');
-    uz.ondrop = e => { e.preventDefault(); uz.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.miz')) loadMiz(f) };
+/**
+ * Waypoints et loadout par groupe (clé = group.name).
+ * Données calculées à partir du .miz, modifiables en direct sur la page.
+ */
+const groupWPs     = {};
+const groupLoadout = {};
 
-    async function loadMiz(file) {
-      st('Analyse du fichier mission...', 15);
-      if (!fd.nom) { fd.nom = file.name.replace('.miz', ''); document.getElementById('f-nom').value = fd.nom; }
-      try {
-        const zip = await JSZip.loadAsync(file);
-        const mf = zip.file('mission');
-        if (!mf) throw new Error('"mission" introuvable dans le .miz');
-        const content = await mf.async('string');
-        let theatre = '';
-        const tf = zip.file('theatre');
-        if (tf) theatre = (await tf.async('string')).trim();
-        miz = parseMiz(content, theatre);
+/* ════════════════════════════════════════════════════════════════
+   UTILITAIRES DE SÉCURITÉ
+   Toutes les chaînes issues de sources externes (fichier .miz,
+   saisie utilisateur) doivent passer par ces fonctions avant
+   d'être insérées dans le DOM.
+   ════════════════════════════════════════════════════════════════ */
 
-        document.getElementById('file-ok').style.display = 'flex';
-        document.getElementById('file-name').textContent = file.name;
-        uz.style.display = 'none';
-        bdg('bdg-miz', '✓ chargé', 'ok');
+/**
+ * Échappe les caractères HTML spéciaux d'une chaîne.
+ * À utiliser pour les attributs HTML et les insertions via innerHTML.
+ * @param {string} str
+ * @returns {string}
+ */
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
+}
 
-        unlock(['ac-pkg', 'ac-brief', 'ac-met', 'ac-intel', 'ac-comms']);
-        fillAuto();
-        renderGroups();
-        initCommsFromGroups();
-        document.getElementById('btn-pdf').disabled = false;
-        st(`${miz.theatre} — ${miz.groups.length} groupe(s) — cliquer sur les groups pour construire le package`, 100);
-      } catch (e) { st('Erreur: ' + e.message, 0); console.error(e) }
-    }
+/**
+ * Sanitise une chaîne pour utilisation dans un attribut d'événement
+ * inline (onblur, oninput…). Remplace les apostrophes pour éviter
+ * toute injection via les délimiteurs de chaîne JavaScript.
+ * @param {string} str
+ * @returns {string}
+ */
+function escAttr(str) {
+  return esc(str).replace(/'/g, '&#39;');
+}
 
-    function resetApp() {
-      miz = null; selPkg.clear(); selSup.clear(); uhfComms = []; vhfComms = [];
-      if (document.getElementById('sel-coalition')) document.getElementById('sel-coalition').value = 'blue';
-      ['ac-pkg', 'ac-brief', 'ac-met', 'ac-intel', 'ac-comms'].forEach(id => {
-        const el = document.getElementById(id);
-        el.classList.add('locked');
-      });
-      document.getElementById('file-ok').style.display = 'none';
-      uz.style.display = '';
-      document.getElementById('miz-inp').value = '';
-      document.getElementById('btn-pdf').disabled = true;
-      document.getElementById('kbpages').innerHTML = '<div style="text-align:center;padding:80px;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:.1em">CHARGEZ UN FICHIER .MIZ POUR COMMENCER</div>';
-      bdg('bdg-miz', 'en attente', '');
-      st('En attente d\'un fichier .miz', 0);
-    }
+/**
+ * Crée un identifiant CSS sûr à partir d'un nom quelconque.
+ * @param {string} name
+ * @returns {string}
+ */
+function safeId(name) {
+  return String(name).replace(/[^a-zA-Z0-9_-]/g, '_');
+}
 
-    function bdg(id, txt, cls) {
-      const el = document.getElementById(id);
-      el.textContent = txt;
-      el.className = 'acc-badge' + (cls ? ' ' + cls : '');
-    }
-    function st(msg, pct) {
-      document.getElementById('sbar').textContent = msg;
-      document.getElementById('pfill').style.width = pct + '%';
-    }
+/* ════════════════════════════════════════════════════════════════
+   ACCORDÉONS
+   ════════════════════════════════════════════════════════════════ */
 
-    // ════════════════════════════════════════════
-    // PARSER
-    // ════════════════════════════════════════════
-    function parseMiz(content, theatre) {
-      const d = { theatre, date: '', time: '', sunrise: '', sunset: '', weather: {}, groups: [], bullseye: null };
-      let d_year = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Year"\]\s*=\s*(\d+)/);
-      let d_month = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Month"\]\s*=\s*(\d+)/);
-      let d_day = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Day"\]\s*=\s*(\d+)/);
-      if (d_year && d_month && d_day) d.date = `${d_day[1].padStart(2, '0')}/${d_month[1].padStart(2, '0')}/${d_year[1]}`;
+function toggleAcc(id) {
+  const el = document.getElementById(id);
+  if (el && !el.classList.contains('locked')) el.classList.toggle('closed');
+}
 
-      const st2 = content.match(/\["start_time"\]\s*=\s*([\d.]+)/);
-      if (st2) {
-        d.start_time = parseFloat(st2[1]);
-        const t = Math.floor(d.start_time);
-        d.time = `${String(Math.floor(t / 3600)).padStart(2, '0')}:${String(Math.floor((t % 3600) / 60)).padStart(2, '0')}Z`;
-      } else { d.start_time = 0; d.time = '00:00Z'; }
+function unlockAccs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('locked');
+  });
+}
 
-      const wm = content.match(/\["weather"\]\s*=\s*\{([\s\S]*?)},\s*--\s*end of \["weather"\]/);
-      if (wm) {
-        const ws = wm[1];
-        const tmp = ws.match(/\["temperature"\]\s*=\s*([-\d.]+)/); if (tmp) d.weather.temp = parseFloat(tmp[1]).toFixed(0) + '°C';
-        const qnh = ws.match(/\["qnh"\]\s*=\s*([\d.]+)/); if (qnh) d.weather.qnh = parseFloat(qnh[1]).toFixed(0) + ' mmHg';
-        const vis = ws.match(/\["distance"\]\s*=\s*([\d.]+)/); if (vis) d.weather.vis = (parseFloat(vis[1]) / 1000).toFixed(0) + ' km';
+/* ════════════════════════════════════════════════════════════════
+   GESTION DU FICHIER .MIZ
+   ════════════════════════════════════════════════════════════════ */
 
-        let wtxt = '';
-        ['atGround', 'at2000', 'at8000'].forEach(lvl => {
-          let lr = new RegExp(`\\["${lvl}"\\]\\s*=\\s*\\{[^}]*\\["speed"\\]\\s*=\\s*([\\d.]+)[^}]*\\["dir"\\]\\s*=\\s*([\\d.]+)`, 's');
-          let m = ws.match(lr);
-          if (m) wtxt += (lvl === 'atGround' ? 'GND: ' : (lvl === 'at2000' ? '2k: ' : '8k: ')) + `${Math.round(parseFloat(m[2]))}°/${parseFloat(m[1]).toFixed(1)}m/s `;
-        });
-        d.weather.wind = wtxt.trim();
+const upzoneEl = document.getElementById('upzone');
 
-        const cld = ws.match(/\["clouds"\]\s*=\s*\{([\s\S]*?)\}/);
-        if (cld) {
-          let dens = cld[1].match(/\["density"\]\s*=\s*([\d.]+)/);
-          let base = cld[1].match(/\["base"\]\s*=\s*([\d.]+)/);
-          if (dens && base && parseFloat(dens[1]) > 0) {
-            let bF = Math.round(parseFloat(base[1]) * 3.28084);
-            d.weather.clouds = `Dens:${dens[1]} Base:${bF}ft`;
-          } else { d.weather.clouds = 'Clear'; }
-        }
+document.getElementById('miz-inp').onchange = e => {
+  if (e.target.files[0]) loadMiz(e.target.files[0]);
+};
+upzoneEl.ondragover  = e => { e.preventDefault(); upzoneEl.classList.add('drag'); };
+upzoneEl.ondragleave = ()  => upzoneEl.classList.remove('drag');
+upzoneEl.ondrop      = e  => {
+  e.preventDefault();
+  upzoneEl.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.miz')) loadMiz(f);
+};
+
+/**
+ * Charge et analyse un fichier .miz (archive ZIP contenant "mission").
+ * @param {File} file
+ */
+async function loadMiz(file) {
+  setStatus('Analyse du fichier mission...', 15);
+  if (!fd.nom) {
+    fd.nom = file.name.replace(/\.miz$/i, '');
+    document.getElementById('f-nom').value = fd.nom;
+  }
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const missionFile = zip.file('mission');
+    if (!missionFile) throw new Error('"mission" introuvable dans le .miz');
+    const content = await missionFile.async('string');
+
+    let theatre = '';
+    const theatreFile = zip.file('theatre');
+    if (theatreFile) theatre = (await theatreFile.async('string')).trim();
+
+    miz = parseMiz(content, theatre);
+
+    document.getElementById('file-ok').style.display = 'flex';
+    document.getElementById('file-name').textContent = file.name;
+    upzoneEl.style.display = 'none';
+    setBadge('bdg-miz', '✓ chargé', 'ok');
+
+    unlockAccs(['ac-pkg','ac-brief','ac-met','ac-intel','ac-comms']);
+    fillAutoFields();
+    renderGroups();
+    initCommsFromGroups();
+    document.getElementById('btn-pdf').disabled = false;
+    setStatus(`${miz.theatre} — ${miz.groups.length} groupe(s) détecté(s)`, 100);
+  } catch (e) {
+    setStatus('Erreur : ' + e.message, 0);
+    console.error(e);
+  }
+}
+
+/** Remet l'application dans son état initial. */
+function resetApp() {
+  miz = null;
+  selPkg.clear(); selSup.clear();
+  uhfComms = []; vhfComms = [];
+
+  const coalEl = document.getElementById('sel-coalition');
+  if (coalEl) coalEl.value = 'blue';
+
+  ['ac-pkg','ac-brief','ac-met','ac-intel','ac-comms'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('locked');
+  });
+
+  document.getElementById('file-ok').style.display = 'none';
+  upzoneEl.style.display = '';
+  document.getElementById('miz-inp').value = '';
+  document.getElementById('btn-pdf').disabled = true;
+
+  const kbEl = document.getElementById('kbpages');
+  kbEl.textContent = '';
+  const hint = document.createElement('div');
+  hint.style.cssText = 'text-align:center;padding:80px;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:.1em';
+  hint.textContent = 'CHARGEZ UN FICHIER .MIZ POUR COMMENCER';
+  kbEl.appendChild(hint);
+
+  setBadge('bdg-miz', 'en attente', '');
+  setStatus("En attente d'un fichier .miz", 0);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   UTILITAIRES UI
+   ════════════════════════════════════════════════════════════════ */
+
+function setBadge(id, text, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'acc-badge' + (cls ? ' ' + cls : '');
+}
+
+function setStatus(msg, pct) {
+  const sb = document.getElementById('sbar');
+  const pf = document.getElementById('pfill');
+  if (sb) sb.textContent = msg;
+  if (pf) pf.style.width = pct + '%';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PARSEUR .MIZ
+   Analyse le fichier Lua de mission DCS et extrait les données.
+   ════════════════════════════════════════════════════════════════ */
+
+function parseMiz(content, theatre) {
+  const d = {
+    theatre, date:'', time:'', sunrise:'', sunset:'',
+    weather:{}, groups:[], bullseye:null, start_time:0
+  };
+
+  /* ── Date / Heure de début ── */
+  const dYear  = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Year"\]\s*=\s*(\d+)/);
+  const dMonth = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Month"\]\s*=\s*(\d+)/);
+  const dDay   = content.match(/\["date"\]\s*=\s*\{[\s\S]*?\["Day"\]\s*=\s*(\d+)/);
+  if (dYear && dMonth && dDay)
+    d.date = `${dDay[1].padStart(2,'0')}/${dMonth[1].padStart(2,'0')}/${dYear[1]}`;
+
+  const stMatch = content.match(/\["start_time"\]\s*=\s*([\d.]+)/);
+  if (stMatch) {
+    d.start_time = parseFloat(stMatch[1]);
+    const t = Math.floor(d.start_time);
+    d.time = `${String(Math.floor(t/3600)).padStart(2,'0')}:${String(Math.floor((t%3600)/60)).padStart(2,'0')}Z`;
+  }
+
+  /* ── Météo ── */
+  const wm = content.match(/\["weather"\]\s*=\s*\{([\s\S]*?)},\s*--\s*end of \["weather"\]/);
+  if (wm) {
+    const ws = wm[1];
+    const tmp = ws.match(/\["temperature"\]\s*=\s*([-\d.]+)/);
+    if (tmp) d.weather.temp = parseFloat(tmp[1]).toFixed(0) + '°C';
+
+    const qnh = ws.match(/\["qnh"\]\s*=\s*([\d.]+)/);
+    if (qnh) d.weather.qnh = parseFloat(qnh[1]).toFixed(0) + ' mmHg';
+
+    const vis = ws.match(/\["distance"\]\s*=\s*([\d.]+)/);
+    if (vis) d.weather.vis = (parseFloat(vis[1])/1000).toFixed(0) + ' km';
+
+    let windTxt = '';
+    ['atGround','at2000','at8000'].forEach(lvl => {
+      const lr = new RegExp(
+        `\\["${lvl}"\\]\\s*=\\s*\\{[^}]*\\["speed"\\]\\s*=\\s*([\\d.]+)[^}]*\\["dir"\\]\\s*=\\s*([\\d.]+)`, 's'
+      );
+      const m = ws.match(lr);
+      if (m) {
+        const label = lvl === 'atGround' ? 'GND' : (lvl === 'at2000' ? '2k' : '8k');
+        windTxt += `${label}: ${Math.round(parseFloat(m[2]))}°/${parseFloat(m[1]).toFixed(1)}m/s `;
       }
-      const sunr = content.match(/\["sunrise"\]\s*=\s*([\d.]+)/); const suns = content.match(/\["sunset"\]\s*=\s*([\d.]+)/);
-      if (sunr) d.sunrise = s2t(parseFloat(sunr[1]));
-      if (suns) d.sunset = s2t(parseFloat(suns[1]));
-      const bullB = content.match(/\["blue"\][\s\S]*?\["bullseye"\]\s*=\s*\{[^}]*\["x"\]\s*=\s*([-\d.]+)[^}]*\["y"\]\s*=\s*([-\d.]+)/);
-      const bullR = content.match(/\["red"\][\s\S]*?\["bullseye"\]\s*=\s*\{[^}]*\["x"\]\s*=\s*([-\d.]+)[^}]*\["y"\]\s*=\s*([-\d.]+)/);
-      d.bullseye = {
-        blue: bullB ? { x: parseFloat(bullB[1]), y: parseFloat(bullB[2]) } : null,
-        red: bullR ? { x: parseFloat(bullR[1]), y: parseFloat(bullR[2]) } : null
-      };
+    });
+    d.weather.wind = windTxt.trim();
 
-      const SKIP = new Set(['Blue', 'Red', 'Neutral', 'blue', 'red', 'neutrals', 'USA', 'France', 'Russia', 'Germany', 'Syria', 'Iran', 'Georgia', 'China']);
-      const SUP = ['awacs', 'tanker', 'refuel', 'jtac', 'fac', 'ewr', 'kc-135', 'kc135', 'il-78', 's-3b', 'e-3'];
-      const SKIP_TYPE = ['Kub', 'ZU-', 'SA-', 'Ural', 'truck', 'Infantry', 'BMP', 'BTR', 'T-72', 'T-80', 'Abrams', 'Bradley', 'Tigr', 'Humvee', 'AAA'];
-      // Helper to extract exact lua dictionary boundaries containing an exact index
-      function getEnclosingDict(str, index) {
-        let depth = 0;
-        let startIdx = 0;
-        for (let i = index; i >= 0; i--) {
-          if (str[i] === '}') depth++;
-          else if (str[i] === '{') {
-            depth--;
-            if (depth < 0) { startIdx = i; break; }
-          }
-        }
-        depth = 0;
-        let endIdx = str.length;
-        for (let i = startIdx; i < str.length; i++) {
-          let char = str[i];
-          if (char === '{') depth++;
-          else if (char === '}') {
-            depth--;
-            if (depth === 0) { endIdx = i + 1; break; }
-          }
-        }
-        return str.substring(startIdx, endIdx);
+    const cld = ws.match(/\["clouds"\]\s*=\s*\{([\s\S]*?)\}/);
+    if (cld) {
+      const dens = cld[1].match(/\["density"\]\s*=\s*([\d.]+)/);
+      const base = cld[1].match(/\["base"\]\s*=\s*([\d.]+)/);
+      if (dens && base && parseFloat(dens[1]) > 0) {
+        const bFt = Math.round(parseFloat(base[1]) * 3.28084);
+        d.weather.clouds = `Dens:${dens[1]} Base:${bFt}ft`;
+      } else {
+        d.weather.clouds = 'Clear';
+      }
+    }
+  }
+
+  /* ── Lever / Coucher de soleil ── */
+  const sunr = content.match(/\["sunrise"\]\s*=\s*([\d.]+)/);
+  const suns = content.match(/\["sunset"\]\s*=\s*([\d.]+)/);
+  if (sunr) d.sunrise = secsToTime(parseFloat(sunr[1]));
+  if (suns) d.sunset  = secsToTime(parseFloat(suns[1]));
+
+  /* ── Bullseye ── */
+  const bullB = content.match(/\["blue"\][\s\S]*?\["bullseye"\]\s*=\s*\{[^}]*\["x"\]\s*=\s*([-\d.]+)[^}]*\["y"\]\s*=\s*([-\d.]+)/);
+  const bullR = content.match(/\["red"\][\s\S]*?\["bullseye"\]\s*=\s*\{[^}]*\["x"\]\s*=\s*([-\d.]+)[^}]*\["y"\]\s*=\s*([-\d.]+)/);
+  d.bullseye = {
+    blue: bullB ? { x: parseFloat(bullB[1]), y: parseFloat(bullB[2]) } : null,
+    red:  bullR ? { x: parseFloat(bullR[1]), y: parseFloat(bullR[2]) } : null
+  };
+
+  /* ── Groupes ── */
+  const SKIP_NAMES = new Set(['Blue','Red','Neutral','blue','red','neutrals','USA','France','Russia','Germany','Syria','Iran','Georgia','China']);
+  const SUP_KEYS   = ['awacs','tanker','refuel','jtac','fac','ewr','kc-135','kc135','il-78','s-3b','e-3'];
+  const SKIP_TYPES = ['Kub','ZU-','SA-','Ural','truck','Infantry','BMP','BTR','T-72','T-80','Abrams','Bradley','Tigr','Humvee','AAA'];
+
+  /** Extrait le bloc Lua enclosant qui contient la position `index`. */
+  function getEnclosingBlock(str, index) {
+    let depth = 0, startIdx = 0;
+    for (let i = index; i >= 0; i--) {
+      if (str[i] === '}') depth++;
+      else if (str[i] === '{') { depth--; if (depth < 0) { startIdx = i; break; } }
+    }
+    depth = 0;
+    let endIdx = str.length;
+    for (let i = startIdx; i < str.length; i++) {
+      if (str[i] === '{') depth++;
+      else if (str[i] === '}') { depth--; if (depth === 0) { endIdx = i+1; break; } }
+    }
+    return str.substring(startIdx, endIdx);
+  }
+
+  const groupIdMatches = [...content.matchAll(/\["groupId"\]\s*=\s*\d+/g)];
+
+  for (const gm of groupIdMatches) {
+    const gc = getEnclosingBlock(content, gm.index);
+
+    const nameM = gc.match(/\["name"\]\s*=\s*"([^"]+)"/);
+    if (!nameM) continue;
+    const name = nameM[1];
+
+    const freqM = gc.match(/\["frequency"\]\s*=\s*([\d.]+)/);
+    const freq  = freqM ? parseFloat(freqM[1]) : 0;
+
+    if (SKIP_NAMES.has(name) || freq < 100) continue;
+
+    /* Déduire la coalition par proximité dans le fichier Lua */
+    let coalition = 'all';
+    const gIdx = content.indexOf('["name"] = "' + name + '"');
+    if (gIdx !== -1) {
+      const bIdx = content.lastIndexOf('["blue"]',     gIdx);
+      const rIdx = content.lastIndexOf('["red"]',      gIdx);
+      const nIdx = content.lastIndexOf('["neutrals"]', gIdx);
+      const maxIdx = Math.max(bIdx, rIdx, nIdx);
+      if      (maxIdx === bIdx) coalition = 'blue';
+      else if (maxIdx === rIdx) coalition = 'red';
+      else                      coalition = 'neutral';
+    }
+
+    /* Bloc des unités */
+    const ucM = gc.match(/\["units"\]\s*=\s*\{([\s\S]*?)\n\s*\}, -- end of \["units"\]/);
+    const uc  = ucM ? ucM[1] : '';
+    if (!uc) continue;
+
+    const typeM  = uc.match(/\["type"\]\s*=\s*"([^"]+)"/);
+    const acType = typeM ? typeM[1] : '';
+    if (SKIP_TYPES.some(s => acType.includes(s))) continue;
+
+    const numUnits = (uc.match(/\["unitId"\]/g) || []).length || 1;
+    const csM      = uc.match(/\["name"\]\s*=\s*"([A-Za-z][A-Za-z0-9]*?)\d{2,}"/);
+    const callsign = csM ? csM[1] : name.replace(/^[A-Z0-9]+_/, '');
+    const taskM    = gc.match(/\["task"\]\s*=\s*"([^"]+)"/);
+    const task     = taskM ? taskM[1] : '';
+    const isPlayer = uc.includes('"Player"') || uc.includes('"Instructor"');
+
+    /* Membres du groupe */
+    const members = [];
+    const unitBlocks = uc.split(/\["unitId"\]\s*=\s*\d+/);
+    unitBlocks.shift();
+    unitBlocks.forEach(ub => {
+      const unameM = ub.match(/\["name"\]\s*=\s*"([^"]+)"/);
+      const uname  = unameM ? unameM[1] : '';
+      let mcall = ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\["name"\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\[4\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*(\d+)/);
+      const finalCs = mcall ? mcall[1] : uname.split('_').pop();
+      const dlMatch = ub.match(/\["STN_L16"\]\s*=\s*"?([0-9A-Z]+)"?/);
+      members.push({ callsign: finalCs, tacan:'', dl: dlMatch ? dlMatch[1] : '' });
+    });
+
+    const groupCallsign = members.length > 0 ? members[0].callsign : callsign;
+
+    /* Armement */
+    const tFuel    = (uc.match(/\["fuel"\]\s*=\s*([\d.]+)/) || [])[1] || '';
+    const hasFlare = uc.includes('["flare"]');
+    const weapons  = [...new Set((uc.match(/\["CLSID"\]\s*=\s*"([^"]+)"/g) || [])
+      .map(w => w.match(/"([^"]+)"$/)[1]))];
+
+    /* Canaux radio préréglés */
+    const channelsUHF = [], channelsVHF = [];
+    const r1 = uc.match(/\[1\]\s*=\s*\{\s*\["channels"\]\s*=\s*\{([^}]+)\}/);
+    if (r1) [...r1[1].matchAll(/\[\d+\]\s*=\s*([\d.]+)/g)].forEach(m => channelsUHF.push(parseFloat(m[1]).toFixed(3)));
+    const r2 = uc.match(/\[2\]\s*=\s*\{\s*\["channels"\]\s*=\s*\{([^}]+)\}/);
+    if (r2) [...r2[1].matchAll(/\[\d+\]\s*=\s*([\d.]+)/g)].forEach(m => channelsVHF.push(parseFloat(m[1]).toFixed(3)));
+
+    /* Waypoints */
+    const wps = [];
+    let toTime = '', totTime = '', airdrome = '';
+    const rcM = gc.match(/\["route"\]\s*=\s*\{([\s\S]*?)\n\s*\}, -- end of \["route"\]/);
+    if (rcM) {
+      const rc = rcM[1];
+      /* Extraire les blocs de tâche pour éviter les faux positifs */
+      const tasksMap = [];
+      let counter = 0;
+      let safeRc  = rc;
+      while (true) {
+        const ts = safeRc.indexOf('["task"] =');
+        if (ts === -1) break;
+        const te = safeRc.indexOf('end of ["task"]', ts);
+        if (te === -1) break;
+        tasksMap.push(safeRc.substring(ts, te + 15));
+        safeRc = safeRc.substring(0, ts) + `["task_ref_${counter}"] = {}` + safeRc.substring(te + 15);
+        counter++;
       }
 
-      let groupIds = [...content.matchAll(/\["groupId"\]\s*=\s*\d+/g)];
-      for (let gm of groupIds) {
-        let gc = getEnclosingDict(content, gm.index);
+      const wpsList = safeRc.split(/\n[ \t]*\[\d+\]\s*=\s*\{/);
+      wpsList.shift();
 
-        let nameM = gc.match(/\["name"\]\s*=\s*"([^"]+)"/);
-        if (!nameM) continue;
-        let name = nameM[1];
+      const globAirfields = typeof AIRFIELDS !== 'undefined' ? AIRFIELDS :
+                            (typeof DCS_AIRFIELDS !== 'undefined' ? DCS_AIRFIELDS : null);
+      let wpIdx = 1;
 
-        let freqM = gc.match(/\["frequency"\]\s*=\s*([\d.]+)/);
-        let freq = freqM ? parseFloat(freqM[1]) : 0;
+      wpsList.forEach(chunk => {
+        if (wps.length >= 25) return;
+        const actionM = chunk.match(/\["action"\]\s*=\s*"([^"]+)"/);
+        const wpTypeM = chunk.match(/\["type"\]\s*=\s*"([^"]+)"/);
+        const action  = actionM ? actionM[1] : (wpTypeM ? wpTypeM[1] : '');
+        const xM      = chunk.match(/\["x"\]\s*=\s*([-\d.]+)/);
+        const yM      = chunk.match(/\["y"\]\s*=\s*([-\d.]+)/);
+        const altM    = chunk.match(/\["alt"\]\s*=\s*([-\d.]+)/);
+        const speedM  = chunk.match(/\["speed"\]\s*=\s*([-\d.]+)/);
+        const etaM    = chunk.match(/\["ETA"\]\s*=\s*([-\d.]+)/);
+        const aidM    = chunk.match(/\["airdromeId"\]\s*=\s*(\d+)/);
 
-        if (SKIP.has(name) || freq < 100) continue;
+        if (!(xM && yM && etaM)) return;
 
-        let gIdx = content.indexOf('["name"] = "' + name + '"');
-        let coalition = 'all';
-        if (gIdx !== -1) {
-          let b = content.lastIndexOf('["blue"]', gIdx);
-          let r = content.lastIndexOf('["red"]', gIdx);
-          let n = content.lastIndexOf('["neutrals"]', gIdx);
-          let maxIdx = Math.max(b, r, n);
-          if (maxIdx === b) coalition = 'blue';
-          else if (maxIdx === r) coalition = 'red';
-          else if (maxIdx === n) coalition = 'neutral';
+        const eta     = parseFloat(etaM[1]);
+        const relTime = secsToDelta(Math.max(0, eta - d.start_time));
+
+        if (/TakeOff|From Parking|From Ground|Runway/.test(action)) {
+          toTime = relTime;
+          if (aidM && globAirfields && globAirfields[d.theatre] && globAirfields[d.theatre][aidM[1]])
+            airdrome = globAirfields[d.theatre][aidM[1]];
         }
+        if (action === task) totTime = relTime;
 
-        const ucM = gc.match(/\["units"\]\s*=\s*\{([\s\S]*?)\n\s*\}, -- end of \["units"\]/);
-        const uc = ucM ? ucM[1] : '';
-        if (!uc) continue;
-
-        const typeM = uc.match(/\["type"\]\s*=\s*"([^"]+)"/);
-        const acType = typeM ? typeM[1] : '';
-        if (SKIP_TYPE.some(s => acType.includes(s))) continue;
-
-        const nu = (uc.match(/\["unitId"\]/g) || []).length || 1;
-        const csM = uc.match(/\["name"\]\s*=\s*"([A-Za-z][A-Za-z0-9]*?)\d{2,}"/);
-        const callsign = csM ? csM[1] : name.replace(/^[A-Z0-9]+_/, '');
-
-        const taskM = gc.match(/\["task"\]\s*=\s*"([^"]+)"/);
-        const task = taskM ? taskM[1] : '';
-        const isPlayer = uc.includes('"Player"') || uc.includes("'Player'") || uc.includes('"Instructor"');
-
-        // Parse individual units safely
-        const members = [];
-        let unitBlocks = uc.split(/\["unitId"\]\s*=\s*\d+/);
-        unitBlocks.shift();
-        unitBlocks.forEach(ub => {
-          let unameM = ub.match(/\["name"\]\s*=\s*"([^"]+)"/);
-          let uname = unameM ? unameM[1] : '';
-          let mcall = ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\["name"\]\s*=\s*"([^"]+)"/);
-          if (!mcall) mcall = ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\[4\]\s*=\s*"([^"]+)"/);
-          if (!mcall) mcall = ub.match(/\["callsign"\]\s*=\s*"([^"]+)"/);
-          if (!mcall) mcall = ub.match(/\["callsign"\]\s*=\s*(\d+)/);
-          let finalCallsign = mcall ? mcall[1] : uname.split('_').pop();
-          let dlMatch = ub.match(/\["STN_L16"\]\s*=\s*"?([0-9A-Z]+)"?/);
-          members.push({ callsign: finalCallsign, tacan: '', dl: dlMatch ? dlMatch[1] : '' });
-        });
-
-        let groupCallsign = members.length > 0 ? members[0].callsign : callsign;
-
-        const tFuel = (uc.match(/\["fuel"\]\s*=\s*([\d.]+)/) || [])[1] || '';
-        const hasFlare = uc.includes('["flare"]'); const hasChaff = uc.includes('["chaff"]'); const hasGun = uc.match(/\["gun"\]\s*=\s*100/);
-        const wpns = [...new Set((uc.match(/\["CLSID"\]\s*=\s*"([^"]+)"/g) || []).map(w => w.match(/"([^"]+)"$/)[1]))];
-
-        let channelsUHF = [], channelsVHF = [];
-        let r1 = uc.match(/\[1\]\s*=\s*\{\s*\["channels"\]\s*=\s*\{([^}]+)\}/);
-        if (r1) channelsUHF = [...r1[1].matchAll(/\[\d+\]\s*=\s*([\d.]+)/g)].map(mm => parseFloat(mm[1]).toFixed(3));
-        let r2 = uc.match(/\[2\]\s*=\s*\{\s*\["channels"\]\s*=\s*\{([^}]+)\}/);
-        if (r2) channelsVHF = [...r2[1].matchAll(/\[\d+\]\s*=\s*([\d.]+)/g)].map(mm => parseFloat(mm[1]).toFixed(3));
-
-        let wps = [], toTime = '', totTime = '', airdrome = '';
-        const rcM = gc.match(/\["route"\]\s*=\s*\{([\s\S]*?)\n\s*\}, -- end of \["route"\]/);
-        if (rcM) {
-          const rc = rcM[1];
-          let tasksMap = [];
-          let counter = 0;
-          let safeRc = rc;
-          while (true) {
-            let ts = safeRc.indexOf('["task"] =');
-            if (ts === -1) break;
-            let te = safeRc.indexOf('end of ["task"]', ts);
-            if (te === -1) break;
-            te += 15; // consume 'end of ["task"]'
-            tasksMap.push(safeRc.substring(ts, te));
-            safeRc = safeRc.substring(0, ts) + `["task_ref_${counter}"] = {}` + safeRc.substring(te);
-            counter++;
-          }
-
-          let wpsList = safeRc.split(/\n[ \t]*\[\d+\]\s*=\s*\{/);
-          wpsList.shift();
-
-          let globAIRFIELDS = typeof AIRFIELDS !== 'undefined' ? AIRFIELDS : (typeof DCS_AIRFIELDS !== 'undefined' ? DCS_AIRFIELDS : null);
-          let wpIdx = 1;
-          wpsList.forEach((chunk) => {
-            if (wps.length >= 25) return;
-            let actionM = chunk.match(/\["action"\]\s*=\s*"([^"]+)"/);
-            let typeM = chunk.match(/\["type"\]\s*=\s*"([^"]+)"/);
-            let action = actionM ? actionM[1] : (typeM ? typeM[1] : '');
-            let xM = chunk.match(/\["x"\]\s*=\s*([-\d.]+)/);
-            let yM = chunk.match(/\["y"\]\s*=\s*([-\d.]+)/);
-            let altM = chunk.match(/\["alt"\]\s*=\s*([-\d.]+)/);
-            let speedM = chunk.match(/\["speed"\]\s*=\s*([-\d.]+)/);
-            let etaM = chunk.match(/\["ETA"\]\s*=\s*([-\d.]+)/);
-            let aidM = chunk.match(/\["airdromeId"\]\s*=\s*(\d+)/);
-
-            if (xM && yM && etaM) {
-              let eta = parseFloat(etaM[1]);
-              let relTime = s2tDelta(Math.max(0, eta - d.start_time));
-              if (action.includes('TakeOff') || action.includes('From Parking') || action.includes('From Ground') || action.includes('Runway')) {
-                toTime = relTime;
-                if (aidM && globAIRFIELDS && globAIRFIELDS[d.theatre] && globAIRFIELDS[d.theatre][aidM[1]])
-                  airdrome = globAIRFIELDS[d.theatre][aidM[1]];
-              }
-              if (action === task) totTime = relTime;
-
-              let descNote = action;
-              let trM = chunk.match(/\["task_ref_(\d+)"\]/);
-              if (trM && tasksMap[parseInt(trM[1])]) {
-                let tb = tasksMap[parseInt(trM[1])];
-                let subActs = [...tb.matchAll(/\["id"\]\s*=\s*"([^"]+)"/g)];
-                subActs.forEach(m => {
-                  if (m[1] !== 'WrappedAction' && !descNote.includes(m[1])) descNote += ' / ' + m[1];
-                });
-              }
-              wps.push({
-                desc: typeM && typeM[1] === 'Turning Point' ? 'WP ' + wpIdx : (action.substring(0, 18)),
-                note: descNote,
-                alt: altM ? Math.round(parseFloat(altM[1]) * 3.28084) : 0,
-                speed: speedM ? Math.round(parseFloat(speedM[1]) * 1.94384) : 0,
-                x: parseFloat(xM[1]),
-                y: parseFloat(yM[1]),
-                eta: relTime,
-                tos: ''
-              });
-              wpIdx++;
-            }
+        let descNote = action;
+        const trM = chunk.match(/\["task_ref_(\d+)"\]/);
+        if (trM && tasksMap[parseInt(trM[1])]) {
+          const tb = tasksMap[parseInt(trM[1])];
+          [...tb.matchAll(/\["id"\]\s*=\s*"([^"]+)"/g)].forEach(m => {
+            if (m[1] !== 'WrappedAction' && !descNote.includes(m[1])) descNote += ' / ' + m[1];
           });
         }
-        const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/); const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
-        const isSup = SUP.some(k => name.toLowerCase().includes(k) || acType.toLowerCase().includes(k));
-        d.groups.push({ name, callsign: groupCallsign, acType, numUnits: nu, task, freq, tacan: '', isPlayer, weapons: wpns, waypoints: wps, isSup, x: xm ? parseFloat(xm[1]) : 0, y: ym ? parseFloat(ym[1]) : 0, coalition, members, fuel: tFuel, flare: hasFlare, chaff: hasChaff, toTime, totTime, airdrome, channelsUHF, channelsVHF });
-      }
-      return d;
-    }
 
-    function s2t(s) { s = Math.floor(s); return `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}Z` }
-    function s2tDelta(s) { s = Math.floor(s); return `+${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}` }
-    function calcHdgDist(x1, y1, x2, y2) {
-      let dN = x2 - x1, dE = y2 - y1;
-      let dist = Math.sqrt(dN * dN + dE * dE) / 1852.0;
-      let hdg = Math.atan2(dE, dN) * 180 / Math.PI;
-      if (hdg < 0) hdg += 360;
-      return { hdg: String(Math.round(hdg)).padStart(3, '0') + '°', dist: dist.toFixed(1) };
-    }
-    function xy2ll(x, y, th) {
-      const O = { 'Caucasus': { lat: 41.84, lon: 41.78 }, 'PersianGulf': { lat: 25.0, lon: 55.0 }, 'Syria': { lat: 35.5, lon: 37.0 }, 'Nevada': { lat: 36.0, lon: -116.5 }, 'Mariana': { lat: 14.0, lon: 145.0 }, 'Falklands': { lat: -51.5, lon: -58.5 }, 'Sinai': { lat: 29.5, lon: 33.0 } };
-      const o = O[th] || O['Caucasus'], R = 6378137;
-      const lat = o.lat + (x / R) * (180 / Math.PI), lon = o.lon + (y / (R * Math.cos(o.lat * Math.PI / 180))) * (180 / Math.PI);
-      const lH = lat >= 0 ? 'N' : 'S', nH = lon >= 0 ? 'E' : 'W', aL = Math.abs(lat), aO = Math.abs(lon);
-      return `${lH}${Math.floor(aL)}°${((aL - Math.floor(aL)) * 60).toFixed(3)} ${nH}${Math.floor(aO)}°${((aO - Math.floor(aO)) * 60).toFixed(3)}`;
-    }
-
-    // ════════════════════════════════════════════
-    // AUTO FILL
-    // ════════════════════════════════════════════
-    function fillAuto() {
-      const d = miz;
-      fd.carte = d.theatre; fd.ivl = (d.date + ' ' + d.time).trim();
-      const fIvl = document.getElementById('f-ivl');
-      if (fIvl) fIvl.value = fd.ivl;
-      fd.sr = d.sunrise; fd.ss = d.sunset;
-      fd.wind = d.weather.wind || ''; fd.temp = d.weather.temp || '';
-      fd.qnh = d.weather.qnh || ''; fd.vis = d.weather.vis || '';
-      const coalFilter = document.getElementById('sel-coalition') ? document.getElementById('sel-coalition').value : 'blue';
-      const coal = coalFilter === 'all' ? 'blue' : coalFilter;
-      if (d.bullseye && d.bullseye[coal]) fd.bull = xy2ll(d.bullseye[coal].x, d.bullseye[coal].y, d.theatre);
-      const auto = { carte: 'f-carte', ivl: 'f-ivl', sr: 'f-sr', ss: 'f-ss', wind: 'f-wind', temp: 'f-temp', qnh: 'f-qnh', vis: 'f-vis', bull: 'f-bull' };
-      Object.entries(auto).forEach(([k, id]) => { const el = document.getElementById(id); if (el) el.value = fd[k] || '' });
-    }
-
-    // ════════════════════════════════════════════
-    // GROUPS
-    // ════════════════════════════════════════════
-    function changeCoalition() {
-      selPkg.clear();
-      selSup.clear();
-      initCommsFromGroups();
-      upd();
-      renderGroups();
-    }
-
-    function renderGroups() {
-      const coalFilter = document.getElementById('sel-coalition') ? document.getElementById('sel-coalition').value : 'blue';
-      const filtered = miz.groups.filter(g => coalFilter === 'all' || g.coalition === coalFilter);
-      const pkg = filtered.filter(g => !g.isSup);
-      const sup = filtered.filter(g => g.isSup);
-      bdg('bdg-pkg', `${pkg.length} flight, ${sup.length} support`, 'info');
-      const pg = document.getElementById('pkg-grd'); const sg = document.getElementById('sup-grd');
-      pg.innerHTML = ''; sg.innerHTML = '';
-      pkg.forEach(g => pg.appendChild(mkGCard(g, 'pkg')));
-      sup.forEach(g => { sg.appendChild(mkGCard(g, 'sup')); document.getElementById('no-sup').style.display = 'none' });
-      if (!sup.length) document.getElementById('no-sup').style.display = '';
-    }
-    function mkGCard(g, type) {
-      const d = document.createElement('div');
-      const isSelected = (type === 'pkg' ? selPkg : selSup).has(g.name);
-      d.className = 'gcard' + (isSelected ? ' on' : '');
-      d.innerHTML = `<div class="gc-cs">${g.callsign}</div><div class="gc-s">${g.numUnits}× ${(g.acType || '?').substring(0, 12)}</div><div class="gc-s">${g.freq} MHz${g.tacan ? ' / TCN ' + g.tacan : ''}</div><span class="gc-tag ${type === 'sup' ? 'tsup' : 'tpkg'}">${type === 'sup' ? 'SUPPORT' : 'PKG'}</span>`;
-      d.onclick = () => {
-        const s = type === 'pkg' ? selPkg : selSup;
-        s.has(g.name) ? (s.delete(g.name), d.classList.remove('on')) : (s.add(g.name), d.classList.add('on'));
-        initCommsFromGroups(); upd();
-      };
-      return d;
-    }
-
-    // ════════════════════════════════════════════
-    // COMMS
-    // ════════════════════════════════════════════
-    function initCommsFromGroups() {
-      const all = [...selPkg, ...selSup];
-      uhfComms = all.map(name => miz.groups.find(g => g.name === name)).filter(g => g && g.freq).map((g, i) => ({ n: i + 1, freq: g.freq + ' MHz', desc: g.callsign }));
-      vhfComms = [];
-      renderComms();
-    }
-    function renderComms() {
-      renderCommList('uhf', uhfComms);
-      renderCommList('vhf', vhfComms);
-    }
-    function renderCommList(type, arr) {
-      const c = document.getElementById(type + '-rows'); c.innerHTML = '';
-      arr.forEach((r, i) => {
-        const d = document.createElement('div'); d.className = 'comm-grid';
-        d.innerHTML = `<span class="comm-num">${i + 1}</span>
-      <input value="${r.freq}" placeholder="Fréq." onchange="setComm('${type}',${i},'freq',this.value)">
-      <input value="${r.desc}" placeholder="Description" onchange="setComm('${type}',${i},'desc',this.value)">
-      <span class="comm-del" onclick="delComm('${type}',${i})">×</span>`;
-        c.appendChild(d);
+        wps.push({
+          desc:  wpTypeM && wpTypeM[1] === 'Turning Point' ? 'WP ' + wpIdx : action.substring(0, 18),
+          note:  descNote,
+          alt:   altM  ? Math.round(parseFloat(altM[1])  * 3.28084) : 0,
+          speed: speedM ? Math.round(parseFloat(speedM[1]) * 1.94384) : 0,
+          x:     parseFloat(xM[1]),
+          y:     parseFloat(yM[1]),
+          eta:   relTime,
+          tos:   ''
+        });
+        wpIdx++;
       });
     }
-    function addComm(type) { (type === 'uhf' ? uhfComms : vhfComms).push({ n: 0, freq: '', desc: '' }); renderComms(); upd() }
-    function delComm(type, i) { (type === 'uhf' ? uhfComms : vhfComms).splice(i, 1); renderComms(); upd() }
-    function setComm(type, i, key, val) { const a = type === 'uhf' ? uhfComms : vhfComms; if (a[i]) a[i][key] = val; upd() }
 
-    // ════════════════════════════════════════════
-    // SYNC FORM → STATE
-    // ════════════════════════════════════════════
-    const FMAP = { nom: 'f-nom', irl: 'f-irl', carte: 'f-carte', ivl: 'f-ivl', obj1: 'f-obj1', obj2: 'f-obj2', exec: 'f-exec', pen: 'f-pen', sr: 'f-sr', ss: 'f-ss', wind: 'f-wind', temp: 'f-temp', qnh: 'f-qnh', vis: 'f-vis', clouds: 'f-clouds', mnotes: 'f-mnotes', bull: 'f-bull', cap: 'f-cap', sam: 'f-sam', air: 'f-air', roe: 'f-roe', armt: 'f-armt' };
-    function upd() {
-      Object.entries(FMAP).forEach(([k, id]) => { const el = document.getElementById(id); if (el) fd[k] = el.value || '' });
-      renderPreview();
-    }
+    const isSup = SUP_KEYS.some(k => name.toLowerCase().includes(k) || acType.toLowerCase().includes(k));
+    const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/);
+    const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
 
-    // ════════════════════════════════════════════
-    // PREVIEW RENDERER
-    // ════════════════════════════════════════════
-    function renderPreview() {
-      if (!miz) return;
-      const pkg = [...selPkg].map(name => miz.groups.find(g => g.name === name)).filter(Boolean);
-      const sup = [...selSup].map(name => miz.groups.find(g => g.name === name)).filter(Boolean);
-      const pages = document.getElementById('kbpages');
-      pages.innerHTML = '';
+    d.groups.push({
+      name, callsign: groupCallsign, acType, numUnits, task, freq,
+      tacan:'', isPlayer, weapons, waypoints: wps, isSup,
+      x: xm ? parseFloat(xm[1]) : 0,
+      y: ym ? parseFloat(ym[1]) : 0,
+      coalition, members, fuel: tFuel, flare: hasFlare,
+      toTime, totTime, airdrome, channelsUHF, channelsVHF
+    });
+  }
 
-      // Init WP state for newly added groups
-      pkg.forEach(g => {
-        if (!groupWPs[g.name]) {
-          groupWPs[g.name] = [...(g.waypoints || []).slice(0, 15).map((wp, i, arr) => {
-            let hdg = '—', dist = '—';
-            if (i > 0) {
-              let hd = calcHdgDist(arr[i - 1].x, arr[i - 1].y, wp.x, wp.y);
-              hdg = hd.hdg; dist = hd.dist;
-            }
-            return { desc: wp.desc || 'WP', hdg, dist, speed: wp.speed || '', alt: wp.alt || '', eta: wp.eta || '', tos: '', note: wp.note || '', coord: xy2ll(wp.x, wp.y, miz.theatre) }
-          })];
+  return d;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FONCTIONS DE CONVERSION TEMPS / COORDONNÉES
+   ════════════════════════════════════════════════════════════════ */
+
+/** Convertit des secondes en chaîne HH:MM:SSZ */
+function secsToTime(s) {
+  s = Math.floor(s);
+  return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}Z`;
+}
+
+/** Convertit des secondes en delta +HH:MM:SS */
+function secsToDelta(s) {
+  s = Math.floor(s);
+  return `+${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+
+/**
+ * Calcule cap et distance entre deux points en coordonnées DCS (x=nord, y=est).
+ * @returns {{ hdg: string, dist: string }}
+ */
+function calcHdgDist(x1, y1, x2, y2) {
+  const dN = x2 - x1, dE = y2 - y1;
+  const dist = Math.sqrt(dN*dN + dE*dE) / 1852.0;
+  let hdg = Math.atan2(dE, dN) * 180 / Math.PI;
+  if (hdg < 0) hdg += 360;
+  return { hdg: String(Math.round(hdg)).padStart(3,'0') + '°', dist: dist.toFixed(1) };
+}
+
+/**
+ * Convertit des coordonnées DCS (x, y) en latitude/longitude lisibles.
+ * @param {number} x - Coordonnée nord DCS (mètres)
+ * @param {number} y - Coordonnée est DCS (mètres)
+ * @param {string} th - Nom du théâtre
+ * @returns {string}
+ */
+function xy2ll(x, y, th) {
+  const ORIGINS = {
+    Caucasus:    { lat:41.84,  lon: 41.78  },
+    PersianGulf: { lat:25.0,   lon: 55.0   },
+    Syria:       { lat:35.5,   lon: 37.0   },
+    Nevada:      { lat:36.0,   lon:-116.5  },
+    Mariana:     { lat:14.0,   lon: 145.0  },
+    Falklands:   { lat:-51.5,  lon: -58.5  },
+    Sinai:       { lat:29.5,   lon: 33.0   }
+  };
+  const o = ORIGINS[th] || ORIGINS['Caucasus'];
+  const R = 6378137;
+  const lat = o.lat + (x / R) * (180 / Math.PI);
+  const lon = o.lon + (y / (R * Math.cos(o.lat * Math.PI / 180))) * (180 / Math.PI);
+  const lH = lat >= 0 ? 'N' : 'S', nH = lon >= 0 ? 'E' : 'W';
+  const aL = Math.abs(lat), aO = Math.abs(lon);
+  return `${lH}${Math.floor(aL)}°${((aL-Math.floor(aL))*60).toFixed(3)} ${nH}${Math.floor(aO)}°${((aO-Math.floor(aO))*60).toFixed(3)}`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REMPLISSAGE AUTOMATIQUE DES CHAMPS
+   ════════════════════════════════════════════════════════════════ */
+
+function fillAutoFields() {
+  const d = miz;
+  fd.carte = d.theatre;
+  fd.ivl   = (d.date + ' ' + d.time).trim();
+  fd.sr    = d.sunrise;
+  fd.ss    = d.sunset;
+  fd.wind  = d.weather.wind  || '';
+  fd.temp  = d.weather.temp  || '';
+  fd.qnh   = d.weather.qnh   || '';
+  fd.vis   = d.weather.vis   || '';
+
+  const coal = (() => {
+    const v = document.getElementById('sel-coalition')?.value || 'blue';
+    return v === 'all' ? 'blue' : v;
+  })();
+  if (d.bullseye && d.bullseye[coal])
+    fd.bull = xy2ll(d.bullseye[coal].x, d.bullseye[coal].y, d.theatre);
+
+  /* Mettre à jour les champs readonly du formulaire */
+  const AUTO_MAP = {
+    carte:'f-carte', ivl:'f-ivl',
+    sr:'f-sr', ss:'f-ss',
+    wind:'f-wind', temp:'f-temp', qnh:'f-qnh', vis:'f-vis',
+    bull:'f-bull'
+  };
+  Object.entries(AUTO_MAP).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = fd[k] || '';
+  });
+}
+
+/** Synchronise un champ du formulaire vers l'objet fd. */
+function syncField(key, elId) {
+  const el = document.getElementById(elId);
+  if (el) fd[key] = el.value || '';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RENDU DES GROUPES (cartes cliquables)
+   ════════════════════════════════════════════════════════════════ */
+
+function changeCoalition() {
+  selPkg.clear(); selSup.clear();
+  initCommsFromGroups();
+  renderPreview();
+  renderGroups();
+}
+
+function renderGroups() {
+  const coalFilter = document.getElementById('sel-coalition')?.value || 'blue';
+  const filtered   = miz.groups.filter(g => coalFilter === 'all' || g.coalition === coalFilter);
+  const pkg = filtered.filter(g => !g.isSup);
+  const sup = filtered.filter(g =>  g.isSup);
+
+  setBadge('bdg-pkg', `${pkg.length} flight, ${sup.length} support`, 'info');
+
+  const pgEl = document.getElementById('pkg-grd');
+  const sgEl = document.getElementById('sup-grd');
+  pgEl.textContent = '';
+  sgEl.textContent = '';
+
+  pkg.forEach(g => pgEl.appendChild(makeGroupCard(g, 'pkg')));
+  sup.forEach(g => { sgEl.appendChild(makeGroupCard(g, 'sup')); });
+  document.getElementById('no-sup').style.display = sup.length ? 'none' : '';
+}
+
+/**
+ * Crée une carte cliquable pour un groupe.
+ * @param {object} g   - Groupe
+ * @param {string} type - 'pkg' | 'sup'
+ * @returns {HTMLElement}
+ */
+function makeGroupCard(g, type) {
+  const d  = document.createElement('div');
+  const s  = type === 'pkg' ? selPkg : selSup;
+  d.className = 'gcard' + (s.has(g.name) ? ' on' : '');
+
+  /* Utilise textContent pour éviter tout XSS */
+  const csDiv  = document.createElement('div'); csDiv.className = 'gc-cs'; csDiv.textContent = g.callsign;
+  const sDiv   = document.createElement('div'); sDiv.className  = 'gc-s';  sDiv.textContent  = `${g.numUnits}× ${(g.acType||'?').substring(0,12)}`;
+  const frDiv  = document.createElement('div'); frDiv.className = 'gc-s';  frDiv.textContent  = `${g.freq} MHz${g.tacan?' / TCN '+g.tacan:''}`;
+  const tagDiv = document.createElement('span'); tagDiv.className = 'gc-tag ' + (type==='sup'?'tsup':'tpkg');
+  tagDiv.textContent = type === 'sup' ? 'SUPPORT' : 'PKG';
+
+  d.append(csDiv, sDiv, frDiv, tagDiv);
+  d.onclick = () => {
+    s.has(g.name) ? (s.delete(g.name), d.classList.remove('on')) : (s.add(g.name), d.classList.add('on'));
+    initCommsFromGroups();
+    renderPreview();
+  };
+  return d;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   GESTION DES COMMS
+   ════════════════════════════════════════════════════════════════ */
+
+function initCommsFromGroups() {
+  const all = [...selPkg, ...selSup];
+  uhfComms = all
+    .map(name => miz.groups.find(g => g.name === name))
+    .filter(g => g && g.freq)
+    .map((g, i) => ({ n: i+1, freq: g.freq + ' MHz', desc: g.callsign }));
+  vhfComms = [];
+  renderComms();
+}
+
+function renderComms() {
+  renderCommList('uhf', uhfComms);
+  renderCommList('vhf', vhfComms);
+}
+
+function renderCommList(type, arr) {
+  const c = document.getElementById(type + '-rows');
+  if (!c) return;
+  c.textContent = '';
+  arr.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'comm-grid';
+
+    const num   = document.createElement('span'); num.className = 'comm-num'; num.textContent = i+1;
+    const iFreq = document.createElement('input'); iFreq.value = r.freq; iFreq.placeholder = 'Fréq.';
+    iFreq.onchange = () => { arr[i].freq = iFreq.value; };
+
+    const iDesc = document.createElement('input'); iDesc.value = r.desc; iDesc.placeholder = 'Description';
+    iDesc.onchange = () => { arr[i].desc = iDesc.value; };
+
+    const del = document.createElement('span'); del.className = 'comm-del'; del.textContent = '×';
+    del.onclick = () => { arr.splice(i, 1); renderComms(); renderPreview(); };
+
+    row.append(num, iFreq, iDesc, del);
+    c.appendChild(row);
+  });
+}
+
+function addComm(type) {
+  (type === 'uhf' ? uhfComms : vhfComms).push({ n:0, freq:'', desc:'' });
+  renderComms();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RENDU DE L'APERÇU
+   ════════════════════════════════════════════════════════════════ */
+
+function renderPreview() {
+  if (!miz) return;
+  const pkg = [...selPkg].map(name => miz.groups.find(g => g.name === name)).filter(Boolean);
+  const sup = [...selSup].map(name => miz.groups.find(g => g.name === name)).filter(Boolean);
+
+  /* Initialiser les waypoints/loadouts pour les nouveaux groupes */
+  pkg.forEach(g => {
+    if (!groupWPs[g.name]) {
+      groupWPs[g.name] = (g.waypoints || []).slice(0,20).map((wp, i, arr) => {
+        let hdg = '—', dist = '—';
+        if (i > 0) {
+          const hd = calcHdgDist(arr[i-1].x, arr[i-1].y, wp.x, wp.y);
+          hdg = hd.hdg; dist = hd.dist;
         }
-        if (!groupLoadout[g.name]) groupLoadout[g.name] = { loadout: (g.weapons || []).slice(0, 5).join(', ') + (g.flare ? ' +F/C' : ''), fuel: g.fuel || '', joker: '', bingo: '' };
+        return {
+          desc:  wp.desc  || 'WP',
+          hdg, dist,
+          speed: wp.speed || '',
+          alt:   wp.alt   || '',
+          eta:   wp.eta   || '',
+          tos:   '',
+          note:  wp.note  || '',
+          coord: xy2ll(wp.x, wp.y, miz.theatre)
+        };
       });
-
-      pages.appendChild(mkBriefPage(pkg, sup));
-      pkg.forEach((g, i) => pages.appendChild(mkDatacard(g, i)));
-
-      // Dots
-      const dots = document.getElementById('pdots'); dots.innerHTML = '';
-      const n = 1 + pkg.length;
-      for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'pdot' + (i === 0 ? ' on' : ''); d.title = i === 0 ? 'Briefing' : 'Datacard #' + i; d.onclick = () => gotoPage(i); dots.appendChild(d) }
     }
-
-    function gotoPage(i) {
-      const pgs = [...document.querySelectorAll('.kb-page')];
-      if (pgs[i]) pgs[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.querySelectorAll('.pdot').forEach((d, j) => d.classList.toggle('on', j === i));
+    if (!groupLoadout[g.name]) {
+      groupLoadout[g.name] = {
+        loadout: (g.weapons || []).slice(0,5).join(', ') + (g.flare ? ' +F/C' : ''),
+        fuel: g.fuel || '', joker:'', bingo:''
+      };
     }
+  });
 
-    // Intersection observer for dot sync
-    const iob = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { const pgs = [...document.querySelectorAll('.kb-page')]; const i = pgs.indexOf(e.target); if (i >= 0) document.querySelectorAll('.pdot').forEach((d, j) => d.classList.toggle('on', j === i)); } });
-    }, { threshold: .4, root: document.getElementById('rscroll') });
-    const mob = new MutationObserver(() => document.querySelectorAll('.kb-page').forEach(p => iob.observe(p)));
-    mob.observe(document.getElementById('kbpages'), { childList: true });
+  const pages = document.getElementById('kbpages');
+  pages.textContent = '';
 
-    // ─── EDITABLE CELL ───
-    function ecv(val, onblur = '') {
-      return `<span class="kb-cv" contenteditable="true" onblur="${onblur}">${val || ''}</span>`;
+  pages.appendChild(mkBriefPair(pkg, sup));
+  pkg.forEach((g, i) => pages.appendChild(mkDatacardPair(g, i)));
+
+  /* Navigation par points */
+  const dots = document.getElementById('pdots');
+  dots.textContent = '';
+  const n = 1 + pkg.length;
+  for (let i = 0; i < n; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'pdot' + (i === 0 ? ' on' : '');
+    dot.title = i === 0 ? 'Briefing' : 'Datacard #' + i;
+    dot.onclick = () => gotoPage(i);
+    dots.appendChild(dot);
+  }
+}
+
+function gotoPage(i) {
+  const pgs = [...document.querySelectorAll('.kb-page')];
+  if (pgs[i*2]) pgs[i*2].scrollIntoView({ behavior:'smooth', block:'start' });
+  document.querySelectorAll('.pdot').forEach((d, j) => d.classList.toggle('on', j === i));
+}
+
+/* Synchronisation des dots lors du scroll */
+const ioObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const pgs  = [...document.querySelectorAll('.kb-page')];
+      const idx  = Math.floor(pgs.indexOf(e.target) / 2);
+      if (idx >= 0) document.querySelectorAll('.pdot').forEach((d, j) => d.classList.toggle('on', j === idx));
     }
-    function ecc(label, val, onblur = '') {
-      return `<div class="kb-c"><span class="kb-cl">${label}</span>${ecv(val, onblur)}</div>`;
+  });
+}, { threshold:.4, root: document.getElementById('rscroll') });
+
+const mutObserver = new MutationObserver(() => {
+  document.querySelectorAll('.kb-page').forEach(p => ioObserver.observe(p));
+});
+mutObserver.observe(document.getElementById('kbpages'), { childList:true });
+
+/* ════════════════════════════════════════════════════════════════
+   CONSTRUCTEURS DE CELLULES (DOM sécurisé)
+   ════════════════════════════════════════════════════════════════ */
+
+/**
+ * Crée une cellule kb-c avec étiquette + valeur éditable.
+ * Toutes les valeurs passent par textContent (pas d'innerHTML).
+ * @param {string} label
+ * @param {string} value
+ * @param {Function} [onblur] - Callback appelé avec la nouvelle valeur
+ * @returns {HTMLElement}
+ */
+function makeCell(label, value, onblur) {
+  const cell  = document.createElement('div');  cell.className  = 'kb-c';
+  const lbl   = document.createElement('span'); lbl.className   = 'kb-cl'; lbl.textContent = label;
+  const val   = document.createElement('span'); val.className   = 'kb-cv'; val.textContent = value || '';
+  val.contentEditable = 'true';
+  if (onblur) val.addEventListener('blur', () => onblur(val.textContent));
+  cell.append(lbl, val);
+  return cell;
+}
+
+/**
+ * Crée une cellule de tableau <td> éditable.
+ * @param {string|number} value
+ * @param {object} [opts] - { style, mono, center, right }
+ * @returns {HTMLTableCellElement}
+ */
+function makeTd(value, opts = {}) {
+  const td = document.createElement('td');
+  td.contentEditable = 'true';
+  td.textContent = value != null ? String(value) : '';
+  if (opts.style) td.style.cssText = opts.style;
+  if (opts.mono)  td.style.fontFamily = "'Share Tech Mono', monospace";
+  if (opts.center) td.style.textAlign = 'center';
+  if (opts.right)  td.style.textAlign = 'right';
+  if (opts.bold)   td.style.fontWeight = '800';
+  return td;
+}
+
+/**
+ * Crée une ligne de tableau de waypoints.
+ * @param {object} wp    - Données du waypoint
+ * @param {number} idx   - Index dans le tableau
+ * @param {string} gname - Nom du groupe
+ * @returns {HTMLTableRowElement}
+ */
+function makeWpRow(wp, idx, gname) {
+  const tr = document.createElement('tr');
+  const tds = [
+    makeTd(idx+1,        { center:true }),
+    makeTd(wp.desc),
+    makeTd(wp.hdg,       { center:true }),
+    makeTd(wp.dist,      { right:true, mono:true }),
+    makeTd(wp.speed,     { right:true, mono:true }),
+    makeTd(wp.alt,       { right:true, mono:true }),
+    makeTd(wp.eta,       { right:true, mono:true }),
+    makeTd(wp.tos,       { right:true, mono:true }),
+    makeTd(wp.note,      { style:'font-size:8.5px;color:#333' })
+  ];
+  const del = document.createElement('td');
+  del.className = 'row-del';
+  del.textContent = '−';
+  del.onclick = () => { groupWPs[gname].splice(idx, 1); renderPreview(); };
+  tds.push(del);
+  tr.append(...tds);
+  return tr;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PAGE 1 + 2 : BRIEFING MISSION
+   ════════════════════════════════════════════════════════════════ */
+
+function mkBriefPair(pkg, sup) {
+  const wrap = document.createElement('div'); wrap.className = 'kb-wrap';
+  const lbl  = document.createElement('div'); lbl.className  = 'kb-plbl';
+  lbl.textContent = 'PAGE 01 & 02 — BRIEFING MISSION';
+  wrap.appendChild(lbl);
+
+  wrap.appendChild(mkBriefPage1(pkg, sup));
+  wrap.appendChild(mkBriefPage2());
+  return wrap;
+}
+
+function mkBriefPage1(pkg, sup) {
+  const page = document.createElement('div'); page.className = 'kb-page';
+
+  /* ── En-tête ── */
+  const hdr = document.createElement('div'); hdr.className = 'kb-mhdr';
+  const ht  = document.createElement('span'); ht.className = 'kb-mhdr-t'; ht.textContent = 'Mission Briefing / Mission Card';
+  const hr  = document.createElement('span'); hr.className = 'kb-mhdr-r'; hr.textContent = fd.carte;
+  hdr.append(ht, hr);
+
+  /* ── Ligne 1 : infos générales ── */
+  const row1 = document.createElement('div'); row1.className = 'kb-grid4';
+  row1.style.cssText = 'border:.5px solid #c0bdb5';
+  row1.append(
+    makeCell('Nom de la mission', fd.nom),
+    makeCell('Date et heure (IRL)', fd.irl),
+    makeCell('Carte / Map', fd.carte),
+    makeCell('Date et heure (IVL)', fd.ivl)
+  );
+
+  /* ── Ligne 2 : météo ── */
+  const row2 = document.createElement('div'); row2.className = 'kb-grid2';
+  row2.style.cssText = 'border:.5px solid #c0bdb5; border-top:none';
+  const meteoVal = [fd.qnh, fd.temp].filter(Boolean).join(' / ') + (fd.wind ? ' | '+fd.wind : '');
+  const sunVal   = [fd.sr, fd.ss].filter(Boolean).join(' / ');
+  row2.append(
+    makeCell('QNH / Météo', meteoVal),
+    makeCell('Lever / Coucher soleil', sunVal)
+  );
+
+  /* ── Corps principal (flex) ── */
+  const body = document.createElement('div');
+  body.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden';
+
+  /* Objectifs */
+  const shdObj = mkShdr('Objectifs / Objectives');
+  const objRow = document.createElement('div');
+  objRow.style.cssText = 'border:.5px solid #c0bdb5;flex:2;display:grid;grid-template-columns:1fr 1fr;min-height:0';
+  const obj1c = makeCell('Objectifs principaux', fd.obj1);
+  const obj2c = makeCell('Objectifs secondaires', fd.obj2);
+  obj2c.style.borderLeft = '.5px solid #c0bdb5';
+  /* Permettre le wrap du texte dans les zones libres */
+  obj1c.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  obj2c.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  objRow.append(obj1c, obj2c);
+
+  /* Exécution */
+  const shdExec = mkShdr('Exécution / Mission Execution');
+  const execRow = document.createElement('div');
+  execRow.style.cssText = 'border:.5px solid #c0bdb5;flex:2;display:flex;flex-direction:column;min-height:0';
+  const execC = makeCell('Qui / Quand (TOT) / Comment ?', fd.exec);
+  execC.style.flex = '2';
+  execC.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  const roeC  = makeCell('ROE', fd.roe);
+  roeC.style.flex = '1';
+  execRow.append(execC, roeC);
+
+  /* Navigation */
+  const shdNav = mkShdr('Facteur de Navigation / Routing Factor');
+  const tankers = sup.filter(g => /tanker|kc/i.test(g.name) || /kc/i.test(g.acType || ''));
+  const navRow  = document.createElement('div');
+  navRow.className = 'kb-grid5';
+  navRow.style.cssText = 'border:.5px solid #c0bdb5';
+  navRow.append(
+    makeCell('Bullseye', fd.bull),
+    makeCell('CAP Zone', fd.cap),
+    makeCell('Zone ravit. #1', tankers[0] ? tankers[0].callsign+' '+tankers[0].freq+' MHz' : ''),
+    makeCell('Zone ravit. #2', tankers[1] ? tankers[1].callsign+' '+tankers[1].freq+' MHz' : ''),
+    makeCell('RDV / IP', fd.pen || '')
+  );
+
+  /* Intel */
+  const shdIntel = mkShdr('Intelligence & Menaces');
+  const intelRow = document.createElement('div');
+  intelRow.style.cssText = 'border:.5px solid #c0bdb5;flex:2;display:flex;flex-direction:column;min-height:0';
+  const threatRow = document.createElement('div');
+  threatRow.style.cssText = 'flex:2;display:grid;grid-template-columns:1fr 1fr;border-bottom:.5px solid #c0bdb5';
+  const samC = makeCell('Menaces Surface (SAM/AAA/Naval)', fd.sam);
+  samC.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  const airC = makeCell('Menaces Aériennes', fd.air);
+  airC.style.borderLeft = '.5px solid #c0bdb5';
+  airC.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  threatRow.append(samC, airC);
+  const armtC = makeCell('Limitation armement', fd.armt);
+  armtC.style.flex = '1';
+  intelRow.append(threatRow, armtC);
+
+  body.append(shdObj, objRow, shdExec, execRow, shdNav, navRow, shdIntel, intelRow);
+
+  /* ── Tableau package ── */
+  const theatreAFs = getTheatreAirfields();
+  const dlId = 'brief-af-dl';
+  const dl = document.createElement('datalist'); dl.id = dlId;
+  theatreAFs.forEach(af => { const opt = document.createElement('option'); opt.value = af.name; dl.appendChild(opt); });
+
+  const shdPkg = mkShdr('Nos Ressources / Execution Package');
+  const pkgTbl = makePkgTable(pkg, dlId);
+  const shdSup = mkMhdr2('Supports (AAR / AWACS / JTAC...)');
+  const supTbl = makeSupTable(sup);
+
+  page.append(dl, hdr, row1, row2, body, shdPkg, pkgTbl, shdSup, supTbl);
+  return page;
+}
+
+function mkBriefPage2() {
+  const page = document.createElement('div'); page.className = 'kb-page';
+  const hdr  = document.createElement('div'); hdr.className = 'kb-mhdr';
+  const ht   = document.createElement('span'); ht.className = 'kb-mhdr-t';
+  ht.textContent = 'Mission Briefing / Notes & Croquis additionnels';
+  hdr.appendChild(ht);
+
+  const free = document.createElement('div');
+  free.className = 'kb-free';
+  free.style.flex = '1';
+  free.contentEditable = 'true';
+  free.dataset.placeholder = 'Espace libre (notes, dessins, schémas de pénétration...)';
+
+  page.append(hdr, free);
+  return page;
+}
+
+/* ─ Tableau package vol ─ */
+function makePkgTable(pkg, dlId) {
+  const tbl = document.createElement('table'); tbl.className = 'kb-tbl';
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  ['N°','Callsign','Nb','Type','Task/Rôle','Fréq. Tac.','Fréq. Int.','TCN','Airfield T/O','UHF','VHF'].forEach((h, i) => {
+    const th = document.createElement('th'); th.textContent = h;
+    const widths = ['14px','46px','14px','46px','52px','50px','50px','24px','80px','34px','34px'];
+    th.style.width = widths[i] || '';
+    hr.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
+  pkg.slice(0,5).forEach((g, i) => tbody.appendChild(makePkgRow(g, i, dlId)));
+  /* Lignes vides */
+  for (let i = pkg.length; i < 5; i++) {
+    const tr = tbody.insertRow();
+    for (let j = 0; j < 11; j++) tr.insertCell().contentEditable = 'true';
+  }
+  return tbl;
+}
+
+function makePkgRow(g, i, dlId) {
+  const tr = document.createElement('tr');
+  const af   = g.airdrome;
+  const afId = 'brief-af-' + safeId(g.name);
+
+  const tdNum = makeTd(i+1, { center:true });
+  const tdCs  = makeTd(g.callsign, { bold:true });
+  const tdNb  = makeTd(g.numUnits, { center:true });
+  const tdType= makeTd(g.acType || '?');
+  const tdTask= makeTd(g.task || '');
+  const tdF1  = makeTd(g.freq ? g.freq+' MHz' : '', { mono:true });
+  const tdF2  = document.createElement('td'); tdF2.contentEditable = 'true';
+  const tdTcn = makeTd(g.tacan || '—');
+
+  /* Input avec datalist pour l'airfield */
+  const tdAf = document.createElement('td');
+  const inp = document.createElement('input');
+  inp.id = afId;
+  inp.className = 'af-input';
+  inp.setAttribute('list', dlId);
+  inp.value = af ? af.name : '';
+  inp.style.cssText = 'width:100%;border:none;background:transparent;font-size:10px;font-weight:600;color:#111;font-family:"Barlow Condensed",sans-serif';
+  inp.addEventListener('input', () => syncAirfieldFromBrief(inp, g.name));
+  tdAf.appendChild(inp);
+
+  const tdUhf = document.createElement('td'); tdUhf.id = afId+'-uhf'; tdUhf.contentEditable = 'true';
+  tdUhf.style.cssText = 'font-family:"Share Tech Mono",monospace;text-align:center';
+  tdUhf.textContent = af ? (af.uhf !== 'n/a' ? af.uhf : '—') : '';
+
+  const tdVhf = document.createElement('td'); tdVhf.id = afId+'-vhf'; tdVhf.contentEditable = 'true';
+  tdVhf.style.cssText = 'font-family:"Share Tech Mono",monospace;text-align:center';
+  tdVhf.textContent = af ? (af.vhf !== 'n/a' ? af.vhf : '—') : '';
+
+  tr.append(tdNum, tdCs, tdNb, tdType, tdTask, tdF1, tdF2, tdTcn, tdAf, tdUhf, tdVhf);
+  return tr;
+}
+
+function makeSupTable(sup) {
+  const tbl = document.createElement('table'); tbl.className = 'kb-tbl';
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  ['N°','Callsign','Type','Task/Rôle','Fréq. Tac.','Fréq. Int.','TCN','Airfield','UHF AF','VHF AF'].forEach((h,i) => {
+    const th = document.createElement('th'); th.textContent = h;
+    const widths = ['16px','52px','52px','','52px','52px','28px','70px','38px','38px'];
+    th.style.width = widths[i] || '';
+    hr.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
+  sup.slice(0,4).forEach((g, i) => {
+    const tr = tbody.insertRow();
+    const cells = [i+1, g.callsign, g.acType||'?', g.task||'', g.freq?g.freq+' MHz':'', '', g.tacan||'—','','',''];
+    cells.forEach((v, j) => {
+      const td = tr.insertCell(); td.contentEditable = 'true'; td.textContent = String(v || '');
+      if (j === 1) td.style.fontWeight = '800';
+      if ([4,5].includes(j)) td.style.fontFamily = "'Share Tech Mono',monospace";
+    });
+  });
+  for (let i = sup.length; i < 4; i++) {
+    const tr = tbody.insertRow();
+    for (let j = 0; j < 10; j++) tr.insertCell().contentEditable = 'true';
+  }
+  return tbl;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PAGE 3+4 : DATACARD PAR GROUPE
+   ════════════════════════════════════════════════════════════════ */
+
+function mkDatacardPair(g, idx) {
+  const wrap = document.createElement('div'); wrap.className = 'kb-wrap';
+  const lbl  = document.createElement('div'); lbl.className  = 'kb-plbl';
+  lbl.textContent = `PAGE ${String(idx*2+3).padStart(2,'0')} & ${String(idx*2+4).padStart(2,'0')} — DATACARD #${idx+1} — ${g.callsign.toUpperCase()}`;
+  wrap.appendChild(lbl);
+  wrap.appendChild(mkDatacardPage1(g, idx));
+  wrap.appendChild(mkDatacardPage2(g, idx));
+  return wrap;
+}
+
+function mkDatacardPage1(g, idx) {
+  const page = document.createElement('div'); page.className = 'kb-page';
+  const lo = groupLoadout[g.name] || { loadout:'', fuel:'', joker:'', bingo:'' };
+
+  /* En-tête */
+  const hdr = document.createElement('div'); hdr.className = 'kb-mhdr';
+  const ht  = document.createElement('span'); ht.className = 'kb-mhdr-t';
+  ht.textContent = `Datacard #${idx+1} — ${g.callsign.toUpperCase()}`;
+  const hr  = document.createElement('span'); hr.className = 'kb-mhdr-r';
+  hr.textContent = `${g.numUnits}× ${g.acType || '?'}`;
+  hdr.append(ht, hr);
+
+  /* ── Flight Group info ── */
+  const shdFG = mkShdr('Flight Group');
+  const rowFG = document.createElement('div'); rowFG.className = 'kb-grid4';
+  rowFG.style.cssText = 'border:.5px solid #c0bdb5';
+  rowFG.append(
+    makeCell('Callsign', g.callsign),
+    makeCell('Aircraft', g.acType || '?'),
+    makeCell('Rôle / Task', g.task || ''),
+    makeCell('Mission', fd.nom || '')
+  );
+
+  /* Times */
+  const rowTimes = document.createElement('div'); rowTimes.className = 'kb-grid3';
+  rowTimes.style.cssText = 'border:.5px solid #c0bdb5;border-top:none';
+  rowTimes.append(
+    makeCell('T/O Time', g.toTime  || ''),
+    makeCell('Push Time', ''),
+    makeCell('Tgt / TOT', g.totTime || '')
+  );
+
+  /* Fréquences */
+  const flightUHF = g.freq ? g.freq + ' MHz' : '—';
+  const flightVHF = (g.channelsVHF && g.channelsVHF[0]) ? g.channelsVHF[0] + ' MHz' : '—';
+  const uhfPreset = (() => {
+    if (!g.channelsUHF || !g.freq) return 'R1';
+    const i = g.channelsUHF.findIndex(f => f && Math.abs(parseFloat(f) - parseFloat(g.freq)) < 0.01);
+    return i >= 0 ? 'R'+(i+1) : 'R1';
+  })();
+  const rowFreq = document.createElement('div'); rowFreq.className = 'kb-grid2';
+  rowFreq.style.cssText = 'border:.5px solid #c0bdb5;border-top:none';
+  rowFreq.append(
+    makeCell(`UHF — Prst ${uhfPreset} (Radio 1)`, flightUHF),
+    makeCell('VHF — Prst R1 (Radio 2)', flightVHF)
+  );
+
+  /* Membres */
+  const shdMbr = mkShdr('Members');
+  const mbrTbl = makeMembersTable(g);
+
+  /* Zone objectives */
+  const shdObj = mkShdr('Objectives & Tacticals');
+  const objFree = document.createElement('div');
+  objFree.className = 'kb-free';
+  objFree.style.flex = '1';
+  objFree.contentEditable = 'true';
+  objFree.dataset.placeholder = 'Notes tactiques, dessins, croquis...';
+  objFree.textContent = [fd.obj1, fd.exec].filter(Boolean).join(' — ');
+
+  /* Comm ladder */
+  const shdComm = mkShdr('Comm. Ladder');
+  const commGrid = makeCommLadder(g);
+
+  page.append(hdr, shdFG, rowFG, rowTimes, rowFreq, shdMbr, mbrTbl, shdObj, objFree, shdComm, commGrid);
+  return page;
+}
+
+function mkDatacardPage2(g, idx) {
+  const page = document.createElement('div'); page.className = 'kb-page';
+  const lo = groupLoadout[g.name] || { loadout:'', fuel:'', joker:'', bingo:'' };
+
+  /* En-tête */
+  const hdr = document.createElement('div'); hdr.className = 'kb-mhdr';
+  const ht  = document.createElement('span'); ht.className = 'kb-mhdr-t';
+  ht.textContent = `Datacard #${idx+1} — Navigation & Configuration`;
+  hdr.appendChild(ht);
+
+  /* Steerpoints */
+  const shdWP  = mkShdr('Steerpoints');
+  const wpTbl  = makeWPTable(g);
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'no-print';
+  addBtn.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin:2px 0 2px 2px;padding:2px 8px;background:rgba(61,220,132,.1);color:#3ddc84;border:1px solid rgba(61,220,132,.25);border-radius:2px;font-family:var(--mono);font-size:9.5px;cursor:pointer';
+  addBtn.textContent = '+ Ajouter waypoint';
+  addBtn.onclick = () => {
+    if (!groupWPs[g.name]) groupWPs[g.name] = [];
+    const n = groupWPs[g.name].length + 1;
+    groupWPs[g.name].push({ desc:'WP '+n, hdg:'', dist:'', speed:'', alt:'', eta:'', tos:'', note:'', coord:'' });
+    renderPreview();
+  };
+
+  /* Airbases */
+  const shdAf  = mkShdr('Airbases');
+  const afTbl  = makeAirbaseTable(g);
+
+  /* ROE / Notes libres */
+  const shdRoe = mkShdr('ROE / Orbit / Notes diverses');
+  const roeFree = document.createElement('div');
+  roeFree.className = 'kb-free';
+  roeFree.style.flex = '1';
+  roeFree.contentEditable = 'true';
+  roeFree.dataset.placeholder = 'Espace libre (ROE, notes, dessins...)';
+  roeFree.textContent = fd.roe || '';
+
+  /* Loadout */
+  const shdLo  = mkShdr('Configurations & Loadout');
+  const loCell = makeCell('Armement / Loadout', lo.loadout, v => { groupLoadout[g.name].loadout = v; });
+  loCell.querySelector('.kb-cv').style.whiteSpace = 'normal';
+  const loRow  = document.createElement('div'); loRow.className = 'kb-grid3';
+  loRow.style.cssText = 'border:.5px solid #c0bdb5';
+  loRow.append(
+    makeCell('Fuel / Ext', lo.fuel,  v => { groupLoadout[g.name].fuel  = v; }),
+    makeCell('Joker',      lo.joker, v => { groupLoadout[g.name].joker = v; }),
+    makeCell('Bingo',      lo.bingo, v => { groupLoadout[g.name].bingo = v; })
+  );
+
+  page.append(hdr, shdWP, wpTbl, addBtn, shdAf, afTbl, shdRoe, roeFree, shdLo, loCell, loRow);
+  return page;
+}
+
+/* ─ Tableau membres ─ */
+function makeMembersTable(g) {
+  const tbl = document.createElement('table'); tbl.className = 'kb-tbl';
+  tbl.style.cssText = 'border:.5px solid #c0bdb5';
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  ['Members','#1','#2','#3','#4'].forEach((h, i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.style.cssText = 'background:#f3f3f3;color:#000;' + (i===0?'width:18%':i<4?'width:20%':'width:22%');
+    hr.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
+  [
+    { label:'Callsign', key:'callsign' },
+    { label:'Tacan',    key:'tacan'    },
+    { label:'DL / LSR', key:'dl'       }
+  ].forEach(row => {
+    const tr = tbody.insertRow();
+    const lbl = tr.insertCell(); lbl.style.cssText = 'font-weight:700;font-size:10px'; lbl.textContent = row.label;
+    for (let i = 0; i < 4; i++) {
+      const td = tr.insertCell(); td.contentEditable = 'true';
+      td.textContent = (g.members && g.members[i]) ? (g.members[i][row.key] || '') : '';
     }
+  });
+  return tbl;
+}
 
-    // ─── BRIEFING PAGE ───
-    function mkBriefPage(pkg, sup) {
-      const wrap = document.createElement('div'); wrap.className = 'kb-wrap';
-      const lbl = document.createElement('div'); lbl.className = 'kb-plbl'; lbl.textContent = 'PAGE 01 & 02 — BRIEFING MISSION'; wrap.appendChild(lbl);
+/* ─ Tableau waypoints ─ */
+function makeWPTable(g) {
+  const wps = groupWPs[g.name] || [];
+  const tbl = document.createElement('table'); tbl.className = 'kb-tbl';
+  tbl.style.cssText = 'font-size:10px';
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  [
+    { t:'WP',     w:'20px',  a:'center' },
+    { t:'Desc.',  w:'62px'             },
+    { t:'HDG',    w:'28px',  a:'center' },
+    { t:'Dist',   w:'30px',  a:'right'  },
+    { t:'Spd kt', w:'34px',  a:'right'  },
+    { t:'Alt ft', w:'38px',  a:'right'  },
+    { t:'ETA',    w:'38px',  a:'right'  },
+    { t:'TOS',    w:'38px',  a:'right'  },
+    { t:'Note',   w:''                  },
+    { t:'',       w:'14px'             }
+  ].forEach(col => {
+    const th = document.createElement('th'); th.textContent = col.t;
+    if (col.w) th.style.width = col.w;
+    if (col.a) th.style.textAlign = col.a;
+    hr.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
+  wps.forEach((wp, i) => tbody.appendChild(makeWpRow(wp, i, g.name)));
+  return tbl;
+}
 
-      const page1 = document.createElement('div'); page1.className = 'kb-page';
+/* ─ Tableau airbases ─ */
+function makeAirbaseTable(g) {
+  const theatreAFs = getTheatreAirfields();
+  const dlId = 'af-dl-' + safeId(g.name);
+  const dl = document.createElement('datalist'); dl.id = dlId;
+  theatreAFs.forEach(af => { const opt = document.createElement('option'); opt.value = af.name; dl.appendChild(opt); });
 
-      // Tankers auto-détectés pour Zone ravit. #1
-      const tankers = sup.filter(g => g.name.toLowerCase().includes('tanker') || g.name.toLowerCase().includes('kc') || (g.acType || '').toLowerCase().includes('kc'));
-      const ravit1 = tankers[0] ? tankers[0].callsign + ' ' + tankers[0].freq + ' MHz' : '';
-      const ravit2 = tankers[1] ? tankers[1].callsign + ' ' + tankers[1].freq + ' MHz' : '';
+  const tbl = document.createElement('table'); tbl.className = 'kb-tbl';
+  tbl.style.cssText = 'font-size:10px;border:.5px solid #c0bdb5';
 
-      // A1) Ajout colonne Type (acType) entre Nb et Task/Rôle
-      const pkgRows = pkg.slice(0, 5).map((g, i) => {
-        const af = g.airdrome;
-        const afId = 'brief-af-' + g.name.replace(/[^a-z0-9]/gi, '_');
-        const afUHF = af ? (af.uhf !== 'n/a' ? af.uhf : '—') : '';
-        const afVHF = af ? (af.vhf !== 'n/a' ? af.vhf : '—') : '';
-        return `<tr>
-      <td contenteditable>${i + 1}</td>
-      <td contenteditable style="font-weight:800">${g.callsign}</td>
-      <td contenteditable style="text-align:center">${g.numUnits}</td>
-      <td contenteditable>${g.acType || '?'}</td>
-      <td contenteditable>${g.task || ''}</td>
-      <td contenteditable style="font-family:'Share Tech Mono',monospace">${g.freq} MHz</td>
-      <td contenteditable style="font-family:'Share Tech Mono',monospace"></td>
-      <td contenteditable>${g.tacan || '—'}</td>
-      <td><input list="brief-af-dl" id="${afId}" value="${af ? af.name : ''}" style="width:100%;border:none;background:transparent;font-size:10.5px;font-weight:600;color:#111;font-family:'Barlow Condensed',sans-serif" oninput="syncAirfieldFromBrief(this,'${g.name}')"></td>
-      <td contenteditable id="${afId}-uhf" style="font-family:'Share Tech Mono',monospace;text-align:center">${afUHF}</td>
-      <td contenteditable id="${afId}-vhf" style="font-family:'Share Tech Mono',monospace;text-align:center">${afVHF}</td>
-    </tr>`;
-      }).join('') + emptyRows(Math.max(0, 5 - pkg.length), 11);
+  /* On insère le datalist dans le tableau (workaround : dans tbody) */
+  const thead = tbl.createTHead();
+  const hr = thead.insertRow();
+  ['','Nom','UHF','VHF','RWY','ILS','TCN'].forEach((h, i) => {
+    const th = document.createElement('th'); th.textContent = h;
+    const widths = ['25px','22%','11%','11%','9%','9%','9%'];
+    th.style.width = widths[i] || '';
+    if (i > 1) th.style.textAlign = 'center';
+    hr.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
 
-      const supRows = sup.slice(0, 4).map((g, i) => `<tr>
-    <td contenteditable>${i + 1}</td>
-    <td contenteditable style="font-weight:800">${g.callsign}</td>
-    <td contenteditable>${g.acType || '?'}</td>
-    <td contenteditable>${g.task || ''}</td>
-    <td contenteditable style="font-family:'Share Tech Mono',monospace">${g.freq} MHz</td>
-    <td contenteditable style="font-family:'Share Tech Mono',monospace"></td>
-    <td contenteditable>${g.tacan || '—'}</td>
-    <td contenteditable></td>
-    <td contenteditable></td>
-    <td contenteditable></td>
-  </tr>`).join('') + emptyRows(Math.max(0, 4 - sup.length), 10);
+  const makeAfRow = (label, af) => {
+    const tr = document.createElement('tr');
+    const tdLbl = document.createElement('td');
+    tdLbl.style.cssText = 'font-size:9px;font-weight:700;color:#555;white-space:nowrap';
+    tdLbl.textContent = label;
 
-      // DataList unique pour tous les airfields du théâtre
-      const theatreAirfields = (typeof AIRFIELDS !== 'undefined' && miz && AIRFIELDS[miz.theatre])
-        ? Object.values(AIRFIELDS[miz.theatre]) : [];
-      const briefDL = `<datalist id="brief-af-dl">${theatreAirfields.map(af => `<option value="${af.name}">`).join('')}</datalist>`;
+    const tdName = document.createElement('td');
+    tdName.style.cssText = 'width:22%;text-align:left;padding-left:4px';
+    const inp = document.createElement('input');
+    inp.className = 'af-input';
+    inp.setAttribute('list', dlId);
+    inp.value = af ? af.name : '';
+    inp.style.cssText = 'width:100%;border:none;background:transparent;font-size:10px;font-weight:600;color:#111;font-family:"Barlow Condensed",sans-serif;text-align:left';
+    inp.addEventListener('input', () => fillAirbaseRow(inp, g.name, label));
+    tdName.appendChild(inp);
 
-      // Sections briefing avec flex pour auto-adaptation des zones prioritaires
-      page1.innerHTML = `
-  ${briefDL}
-  <div class="kb-mhdr">
-    <span class="kb-mhdr-t">Mission Briefing / Mission Card</span>
-    <span class="kb-mhdr-r">${ecv(fd.carte)}</span>
-  </div>
-  <div class="kb-grid4" style="border:.5px solid #c0bdb5">
-    ${ecc('Nom de la mission', fd.nom)}
-    ${ecc('Date et heure (IRL)', fd.irl)}
-    ${ecc('Carte / Map', fd.carte)}
-    ${ecc('Date et heure (IVL)', fd.ivl)}
-  </div>
-  <div class="kb-grid2" style="border:.5px solid #c0bdb5; border-top:none;">
-    ${ecc('QNH / Météo', fd.qnh + (fd.qnh && fd.temp ? ' / ' : '') + fd.temp + (fd.wind ? ' | ' + fd.wind : ''))}
-    ${ecc('Lever / Coucher soleil', fd.sr && fd.ss ? fd.sr + ' / ' + fd.ss : fd.sr || fd.ss || '')}
-  </div>
+    const tdUhf = document.createElement('td'); tdUhf.contentEditable = 'true'; tdUhf.style.textAlign = 'center';
+    tdUhf.textContent = af ? (af.uhf !== 'n/a' ? af.uhf : '') : '';
+    const tdVhf = document.createElement('td'); tdVhf.contentEditable = 'true'; tdVhf.style.textAlign = 'center';
+    tdVhf.textContent = af ? (af.vhf !== 'n/a' ? af.vhf : '') : '';
+    const tdRwy = document.createElement('td'); tdRwy.contentEditable = 'true'; tdRwy.style.textAlign = 'center';
+    tdRwy.textContent = af ? (af.rwy || '') : '';
+    const tdIls = document.createElement('td'); tdIls.contentEditable = 'true'; tdIls.style.textAlign = 'center';
+    tdIls.textContent = af ? (af.ils !== 'n/a' ? af.ils : '') : '';
+    const tdTcn = document.createElement('td'); tdTcn.contentEditable = 'true'; tdTcn.style.textAlign = 'center';
+    tdTcn.textContent = af ? (af.tacan !== 'n/a' ? af.tacan : '') : '';
 
-  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-    <!-- OBJECTIFS (priorité 1 : flex 3) -->
-    <div class="kb-shdr">Objectifs / Objectives</div>
-    <div style="border:.5px solid #c0bdb5;flex:3;display:grid;grid-template-columns:1fr 1fr">
-      <div class="kb-c" style="overflow:hidden"><span class="kb-cl">Objectifs principaux</span>${ecv(fd.obj1)}</div>
-      <div class="kb-c" style="overflow:hidden"><span class="kb-cl">Objectifs secondaires</span>${ecv(fd.obj2)}</div>
-    </div>
+    tr.append(tdLbl, tdName, tdUhf, tdVhf, tdRwy, tdIls, tdTcn);
+    return tr;
+  };
 
-    <!-- EXECUTION (priorité 2 : flex 2) -->
-    <div class="kb-shdr">Exécution / Mission Execution</div>
-    <div style="border:.5px solid #c0bdb5;flex:2;display:flex;flex-direction:column">
-      <div class="kb-c" style="flex:2"><span class="kb-cl">Qui / Quand (TOT) / Comment ?</span>${ecv(fd.exec)}</div>
-      <div class="kb-c" style="flex:1"><span class="kb-cl">ROE</span>${ecv(fd.roe)}</div>
-    </div>
+  tbody.appendChild(document.createElement('tr')).appendChild(dl); /* datalist dans une cellule cachée */
+  tbody.lastChild.style.display = 'none';
+  tbody.appendChild(makeAfRow('T/O', g.airdrome));
+  tbody.appendChild(makeAfRow('ALT', null));
+  tbody.appendChild(makeAfRow('DIV', null));
+  return tbl;
+}
 
-    <!-- FACTEUR DE NAVIGATION -->
-    <div class="kb-shdr">Facteur de Navigation / Routing Factor</div>
-    <div style="border:.5px solid #c0bdb5;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr">
-      ${ecc('Bullseye', fd.bull)}
-      ${ecc('CAP Zone', fd.cap)}
-      ${ecc('Zone ravit. #1', ravit1)}
-      ${ecc('Zone ravit. #2', ravit2)}
-      ${ecc('RDV Point', fd.pen || '')}
-    </div>
+/* ─ Comm ladder (UHF + VHF côte-à-côte) ─ */
+function makeCommLadder(g) {
+  const grid = document.createElement('div'); grid.className = 'kb-grid2';
+  grid.style.cssText = 'border:.5px solid #c0bdb5';
 
-    <!-- INTELLIGENCE (priorité 3 : flex 2) -->
-    <div class="kb-shdr">Intelligence & Menaces</div>
-    <div style="border:.5px solid #c0bdb5;flex:2;display:flex;flex-direction:column">
-      <div style="flex:2;display:grid;grid-template-columns:1fr 1fr;border-bottom:.5px solid #c0bdb5">
-        <div class="kb-c"><span class="kb-cl">Menaces Surface (SAM/AAA/Naval)</span>${ecv(fd.sam)}</div>
-        <div class="kb-c" style="border-left:.5px solid #c0bdb5"><span class="kb-cl">Menaces Aériennes</span>${ecv(fd.air)}</div>
-      </div>
-      <div class="kb-c" style="flex:1"><span class="kb-cl">Limitation armement</span>${ecv(fd.armt)}</div>
-    </div>
-  </div>
-
-  <div class="kb-shdr">Nos Ressources / Execution Package</div>
-  <table class="kb-tbl"><thead><tr>
-    <th style="width:14px">N°</th>
-    <th style="width:46px">Callsign</th>
-    <th style="width:14px">Nb</th>
-    <th style="width:46px">Type</th>
-    <th style="width:52px">Task/Rôle</th>
-    <th style="width:48px">Fréq. Tac.</th>
-    <th style="width:48px">Fréq. Int.</th>
-    <th style="width:24px">TCN</th>
-    <th style="width:80px">Airfield T/O</th>
-    <th style="width:34px">UHF</th>
-    <th style="width:34px">VHF</th>
-  </tr></thead><tbody>${pkgRows}</tbody></table>
-  <div class="kb-mhdr2">Supports (AAR / AWACS / JTAC...)</div>
-  <table class="kb-tbl"><thead><tr>
-    <th style="width:16px">N°</th>
-    <th style="width:52px">Callsign</th>
-    <th style="width:52px">Type</th>
-    <th>Task/Rôle</th>
-    <th style="width:52px">Fréq. Tac.</th>
-    <th style="width:52px">Fréq. Int.</th>
-    <th style="width:28px">TCN</th>
-    <th style="width:70px">Airfield</th>
-    <th style="width:38px">UHF AF</th>
-    <th style="width:38px">VHF AF</th>
-  </tr></thead><tbody>${supRows}</tbody></table>`;
-
-      const page2 = document.createElement('div'); page2.className = 'kb-page';
-      page2.innerHTML = `
-  <div class="kb-mhdr">
-    <span class="kb-mhdr-t">Mission Briefing / Notes & Dessins additionnels</span>
-  </div>
-  <div style="flex:1; padding:8px;" contenteditable="true" placeholder="Espace libre (saisie, dessins, croquis)..."></div>
-  `;
-
-      wrap.appendChild(page1); wrap.appendChild(page2); return wrap;
+  const makeRadioTable = (label, channels) => {
+    const wrap = document.createElement('div');
+    const hdr  = document.createElement('div'); hdr.className = 'kb-mhdr2'; hdr.textContent = label;
+    const tbl  = document.createElement('table'); tbl.className = 'kb-tbl'; tbl.style.fontSize = '9.5px';
+    const thead = tbl.createTHead(); const hr = thead.insertRow();
+    ['N°','Fréq.','Description'].forEach((h, i) => {
+      const th = document.createElement('th'); th.textContent = h;
+      if (i === 0) th.style.width = '20px';
+      if (i === 1) th.style.width = '65px';
+      hr.appendChild(th);
+    });
+    const tbody = tbl.createTBody();
+    for (let i = 0; i < 15; i++) {
+      const tr = tbody.insertRow();
+      const tdN   = tr.insertCell(); tdN.textContent = String(i+1);
+      const tdF   = tr.insertCell(); tdF.contentEditable = 'true'; tdF.style.fontFamily = "'Share Tech Mono',monospace";
+      tdF.textContent = channels && channels[i] ? channels[i]+' MHz' : '';
+      const tdD   = tr.insertCell(); tdD.contentEditable = 'true';
+      tdD.textContent = (channels && channels[i]) ? 'Preset '+(i+1) : '';
     }
+    wrap.append(hdr, tbl);
+    return wrap;
+  };
 
-    function emptyRows(n, cols) { return Array(n).fill(0).map(() => `<tr>${Array(cols).fill('<td contenteditable></td>').join('')}</tr>`).join('') }
+  grid.append(
+    makeRadioTable('UHF (Radio 1)', g.channelsUHF),
+    makeRadioTable('VHF (Radio 2)', g.channelsVHF)
+  );
+  return grid;
+}
 
-    // ─── DATACARD PAGE ───
-    function mkDatacard(g, idx) {
-      const wrap = document.createElement('div'); wrap.className = 'kb-wrap';
-      const lbl = document.createElement('div'); lbl.className = 'kb-plbl';
-      lbl.textContent = `PAGE ${String(idx * 2 + 3).padStart(2, '0')} & ${String(idx * 2 + 4).padStart(2, '0')} — DATACARD #${idx + 1} — ${g.callsign.toUpperCase()}`;
-      wrap.appendChild(lbl);
+/* ════════════════════════════════════════════════════════════════
+   SYNCHRONISATION AIRFIELDS (BRIEFING ↔ DATACARD)
+   ════════════════════════════════════════════════════════════════ */
 
-      const page1 = document.createElement('div'); page1.className = 'kb-page';
-      const page2 = document.createElement('div'); page2.className = 'kb-page';
-      const lo = groupLoadout[g.name] || { loadout: '', fuel: '', joker: '', bingo: '' };
+function getTheatreAirfields() {
+  if (typeof AIRFIELDS === 'undefined' || !miz || !AIRFIELDS[miz.theatre]) return [];
+  return Object.values(AIRFIELDS[miz.theatre]);
+}
 
-      const wps = groupWPs[g.name] || [];
-      const wpRowsHTML = wps.map((wp, i) => `<tr>
-    <td contenteditable>${i + 1}</td>
-    <td contenteditable>${wp.desc || ''}</td>
-    <td contenteditable>${wp.hdg || '—'}</td>
-    <td contenteditable>${wp.dist || '—'}</td>
-    <td contenteditable>${wp.speed || ''}</td>
-    <td contenteditable>${wp.alt || ''}</td>
-    <td contenteditable>${wp.eta || ''}</td>
-    <td contenteditable>${wp.tos || ''}</td>
-    <td contenteditable style="font-size:8.5px;color:#333">${wp.note || ''}</td>
-    <td class="row-del" onclick="delWP('${g.name}',${i})">−</td>
-  </tr>`).join('');
+function findAirfield(name) {
+  const afs = getTheatreAirfields();
+  const lc  = name.trim().toLowerCase();
+  return afs.find(a => a.name.toLowerCase() === lc) || null;
+}
 
-      const uhfRows = [];
-      const vhfRows = [];
-      for (let i = 0; i < 15; i++) {
-        let uFreq = g.channelsUHF && g.channelsUHF[i] ? g.channelsUHF[i] + ' MHz' : '';
-        let vFreq = g.channelsVHF && g.channelsVHF[i] ? g.channelsVHF[i] + ' MHz' : '';
-        let uDesc = uFreq ? 'Preset ' + (i + 1) : '';
-        let vDesc = vFreq ? 'Preset ' + (i + 1) : '';
-        uhfRows.push(`<tr><td>${i + 1}</td><td contenteditable>${uFreq}</td><td contenteditable>${uDesc}</td></tr>`);
-        vhfRows.push(`<tr><td>${i + 1}</td><td contenteditable>${vFreq}</td><td contenteditable>${vDesc}</td></tr>`);
-      }
-      const commRowsUHF = uhfRows.join('');
-      const commRowsVHF = vhfRows.join('');
+/**
+ * Quand l'utilisateur modifie l'airfield dans le briefing,
+ * met à jour les colonnes UHF/VHF correspondantes.
+ */
+function syncAirfieldFromBrief(input, gname) {
+  const af    = findAirfield(input.value);
+  const afId  = 'brief-af-' + safeId(gname);
+  const uhfEl = document.getElementById(afId + '-uhf');
+  const vhfEl = document.getElementById(afId + '-vhf');
+  if (uhfEl) uhfEl.textContent = af ? (af.uhf !== 'n/a' ? af.uhf : '—') : '';
+  if (vhfEl) vhfEl.textContent = af ? (af.vhf !== 'n/a' ? af.vhf : '—') : '';
+}
 
-      // PAGE 1: Flight Group, Members, Objectives, Comms
-      // Détecter les presets radio actifs du flight pour affichage condensé
-      const flightUHF = g.freq ? g.freq + ' MHz' : '—';
-      const flightVHF = (g.channelsVHF && g.channelsVHF[0]) ? g.channelsVHF[0] + ' MHz' : '—';
-      const flightUHFPreset = (g.channelsUHF && g.channelsUHF.indexOf) ? (() => { const idx = g.channelsUHF.findIndex(f => f && Math.abs(parseFloat(f) - parseFloat(g.freq)) < 0.01); return idx >= 0 ? 'R' + (idx + 1) : 'R1'; })() : 'R1';
+/**
+ * Quand l'utilisateur modifie l'airfield dans une datacard,
+ * remplit les colonnes fréquences/ILS/TACAN de la même ligne.
+ * Si c'est la ligne T/O, propage aussi vers le briefing.
+ */
+function fillAirbaseRow(input, gname, label) {
+  const af = findAirfield(input.value);
+  if (!af) return;
 
-      page1.innerHTML = `
-  <div class="kb-mhdr">
-    <span class="kb-mhdr-t">Datacard #${idx + 1} — ${g.callsign.toUpperCase()}</span>
-    <span class="kb-mhdr-r">${g.numUnits}× ${g.acType || '?'}</span>
-  </div>
+  const row  = input.closest('tr');
+  if (!row) return;
+  const tds  = row.querySelectorAll('td[contenteditable]');
+  if (tds[0]) tds[0].textContent = af.uhf  !== 'n/a' ? af.uhf  : '';
+  if (tds[1]) tds[1].textContent = af.vhf  !== 'n/a' ? af.vhf  : '';
+  if (tds[2]) tds[2].textContent = af.rwy  || '';
+  if (tds[3]) tds[3].textContent = af.ils  !== 'n/a' ? af.ils  : '';
+  if (tds[4]) tds[4].textContent = af.tacan !== 'n/a' ? af.tacan : '';
 
-  <div class="kb-shdr">Flight Group</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:.5px solid #c0bdb5">
-    ${ecc('Callsign', g.callsign)}
-    ${ecc('Aircraft', g.acType || '?')}
-    ${ecc('Rôle / Task', g.task || '')}
-    ${ecc('Mission', fd.nom || '')}
-  </div>
-  <!-- Ligne Time: T/O | Push | Tgt -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:.5px solid #c0bdb5;border-top:none">
-    <div class="kb-c"><span class="kb-cl">T/O Time</span>${ecv(g.toTime)}</div>
-    <div class="kb-c" style="border-left:.5px solid #c0bdb5"><span class="kb-cl">Push Time</span>${ecv('')}</div>
-    <div class="kb-c" style="border-left:.5px solid #c0bdb5"><span class="kb-cl">Tgt / TOT</span>${ecv(g.totTime)}</div>
-  </div>
-  <!-- Fréquences radio du flight -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;border:.5px solid #c0bdb5;border-top:none">
-    <div class="kb-c"><span class="kb-cl">UHF — Prst ${flightUHFPreset} (Radio 1)</span>${ecv(flightUHF)}</div>
-    <div class="kb-c" style="border-left:.5px solid #c0bdb5"><span class="kb-cl">VHF — Prst R1 (Radio 2)</span>${ecv(flightVHF)}</div>
-  </div>
-
-  <!-- Members -->
-  <table class="kb-tbl" style="border:.5px solid #c0bdb5;">
-    <thead>
-      <tr>
-        <th style="width:18%;background:#F3F3F3;color:#000;">Members</th>
-        <th style="width:20%;background:#F3F3F3;color:#000;">#1</th>
-        <th style="width:20%;background:#F3F3F3;color:#000;">#2</th>
-        <th style="width:20%;background:#F3F3F3;color:#000;">#3</th>
-        <th style="width:22%;background:#F3F3F3;color:#000;">#4</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="font-weight:700;font-size:10px">Callsign</td>${Array(4).fill(0).map((_, i) => `<td contenteditable>${g.members && g.members[i] ? g.members[i].callsign : ''}</td>`).join('')}</tr>
-      <tr><td style="font-weight:700;font-size:10px">Tacan</td>${Array(4).fill(0).map((_, i) => `<td contenteditable>${g.members && g.members[i] && g.members[i].tacan ? g.members[i].tacan : ''}</td>`).join('')}</tr>
-      <tr><td style="font-weight:700;font-size:10px">DL / LSR</td>${Array(4).fill(0).map((_, i) => `<td contenteditable>${g.members && g.members[i] && g.members[i].dl ? g.members[i].dl : ''}</td>`).join('')}</tr>
-    </tbody>
-  </table>
-
-  <!-- Objectives & Tacticals: occupe tout l'espace restant -->
-  <div class="kb-shdr" style="margin-top:2px;">Objectives & Tacticals</div>
-  <div style="flex:1;border:.5px solid #c0bdb5;padding:6px;font-size:11px;color:#0d1e3e;overflow:hidden" contenteditable="true" placeholder="Dessins, notes tactiques, croquis...">
-    ${[fd.obj1, fd.exec].filter(Boolean).join(' — ')}
-  </div>
-
-  <div class="kb-shdr" style="margin-top:2px;">Comm. Ladder</div>
-  <div class="kb-grid2" style="border:.5px solid #c0bdb5">
-    <div>
-      <div class="kb-mhdr2">UHF (Radio 1)</div>
-      <table class="kb-tbl" style="font-size:10px">
-        <thead><tr><th style="width:20px">N°</th><th style="width:65px">Fréq.</th><th>Description</th></tr></thead>
-        <tbody>${commRowsUHF}</tbody>
-      </table>
-    </div>
-    <div>
-      <div class="kb-mhdr2">VHF (Radio 2)</div>
-      <table class="kb-tbl" style="font-size:10px">
-        <thead><tr><th style="width:20px">N°</th><th style="width:65px">Fréq.</th><th>Description</th></tr></thead>
-        <tbody>${commRowsVHF}</tbody>
-      </table>
-    </div>
-  </div>`;
-
-      // PAGE 2: Steerpoints (TOS élargi, nums alignés), Airbases avec datalist théâtre, ROE flex
-      // Construire la liste déroulante des airfields du théâtre actuel
-      const theatreAirfields = (typeof AIRFIELDS !== 'undefined' && AIRFIELDS[miz.theatre])
-        ? Object.values(AIRFIELDS[miz.theatre]) : [];
-      const airfieldDatalistId = 'af-dl-' + g.name.replace(/[^a-z0-9]/gi, '_');
-      const airfieldDatalist = `<datalist id="${airfieldDatalistId}">${theatreAirfields.map(af => `<option value="${af.name}">`).join('')}</datalist>`;
-
-      // Génère une ligne de tableau Airbase avec datalist + auto-remplissage
-      // B1) La colonne Nom est alignée à gauche (padding-left)
-      const mkAirbaseRow = (label, af) => `<tr>
-    <td style="font-size:9px;font-weight:700;color:#555;white-space:nowrap">${label}</td>
-    <td style="width:22%;text-align:left;padding-left:4px"><input list="${airfieldDatalistId}" value="${af ? af.name : ''}" style="width:100%;border:none;background:transparent;font-size:10.5px;font-weight:600;color:#111;font-family:'Barlow Condensed',sans-serif;text-align:left" oninput="fillAirbaseRow(this,'${g.name}','${label}')"></td>
-    <td contenteditable style="width:11%;text-align:center">${af ? af.uhf : ''}</td>
-    <td contenteditable style="width:11%;text-align:center">${af ? af.vhf : ''}</td>
-    <td contenteditable style="width:9%;text-align:center">${af ? af.rwy : ''}</td>
-    <td contenteditable style="width:9%;text-align:center">${af ? af.ils : ''}</td>
-    <td contenteditable style="width:9%;text-align:center">${af ? af.tacan : ''}</td>
-  </tr>`;
-
-      // WP rows avec colonnes alt ft et ETA alignées numériquement (tabular-nums)
-      const wpRowsHTML2 = wps.map((wp, i) => `<tr>
-    <td contenteditable style="text-align:center">${i + 1}</td>
-    <td contenteditable>${wp.desc || ''}</td>
-    <td contenteditable style="text-align:center">${wp.hdg || '—'}</td>
-    <td contenteditable style="text-align:right;font-family:'Share Tech Mono',monospace">${wp.dist || '—'}</td>
-    <td contenteditable style="text-align:right;font-family:'Share Tech Mono',monospace">${wp.speed || ''}</td>
-    <td contenteditable style="text-align:right;font-family:'Share Tech Mono',monospace">${wp.alt || ''}</td>
-    <td contenteditable style="text-align:right;font-family:'Share Tech Mono',monospace">${wp.eta || ''}</td>
-    <td contenteditable style="text-align:right;font-family:'Share Tech Mono',monospace">${wp.tos || ''}</td>
-    <td contenteditable style="font-size:9.5px;color:#333">${wp.note || ''}</td>
-    <td class="row-del" onclick="delWP('${g.name}',${i})">−</td>
-  </tr>`).join('');
-
-      page2.innerHTML = `
-  ${airfieldDatalist}
-  <div class="kb-mhdr">
-    <span class="kb-mhdr-t">Datacard #${idx + 1} — Navigation & Configuration</span>
-  </div>
-
-  <div class="kb-shdr">Steerpoints</div>
-  <table class="kb-tbl" style="font-size:10px;" id="wp-tbl-${g.name.replace(/[^a-z0-9]/gi, '_')}">
-    <thead>
-      <tr>
-        <th style="width:20px;text-align:center">WP</th>
-        <th style="width:62px">Desc.</th>
-        <th style="width:28px;text-align:center">HDG</th>
-        <th style="width:30px;text-align:right">Dist</th>
-        <th style="width:34px;text-align:right">Spd kt</th>
-        <th style="width:38px;text-align:right">Alt ft</th>
-        <th style="width:38px;text-align:right">ETA</th>
-        <th style="width:38px;text-align:right">TOS</th>
-        <th>Note</th>
-        <th class="row-del" style="width:14px;background:transparent"></th>
-      </tr>
-    </thead>
-    <tbody id="wp-body-${g.name.replace(/[^a-z0-9]/gi, '_')}">
-      ${wpRowsHTML2}
-    </tbody>
-  </table>
-  <button onclick="addWP('${g.name}')" style="display:flex;align-items:center;gap:4px;margin:2px 0 2px 2px;padding:2px 8px;background:rgba(61,220,132,.1);color:#3ddc84;border:1px solid rgba(61,220,132,.25);border-radius:2px;font-family:var(--mono);font-size:9.5px;cursor:pointer" class="no-print">+ Ajouter waypoint</button>
-
-  <div class="kb-shdr" style="margin-top:2px;">Airbases</div>
-  <table class="kb-tbl" style="font-size:10px; border:.5px solid #c0bdb5;">
-    <thead><tr>
-      <th style="width:25px"></th>
-      <th style="width:22%">Nom</th>
-      <th style="width:11%;text-align:center">UHF</th>
-      <th style="width:11%;text-align:center">VHF</th>
-      <th style="width:9%;text-align:center">RWY</th>
-      <th style="width:9%;text-align:center">ILS</th>
-      <th style="width:9%;text-align:center">TCN</th>
-    </tr></thead>
-    <tbody>
-      ${mkAirbaseRow('T/O', g.airdrome)}
-      ${mkAirbaseRow('ALT', null)}
-      ${mkAirbaseRow('DIV', null)}
-    </tbody>
-  </table>
-
-  <!-- ROE / Notes flex-fill : occupe tout l'espace restant -->
-  <div class="kb-shdr" style="margin-top:2px;">ROE / Orbit / Notes diverses</div>
-  <div style="flex:1;border:.5px solid #c0bdb5;padding:8px;font-size:11px;color:#0d1e3e;overflow:hidden" contenteditable="true" placeholder="Espace libre (ROE, notes, dessins, croquis)...">
-    ${fd.roe || ''}
-  </div>
-
-  <div class="kb-shdr" style="margin-top:2px;">Configurations & Loadout</div>
-  <div class="kb-c" style="min-height:22px;border:.5px solid #c0bdb5">
-    <span class="kb-cl">Armement / Loadout</span>
-    <span class="kb-cv" contenteditable="true" onblur="setLo('${g.name}','loadout',this.innerText)">${lo.loadout}</span>
-  </div>
-  <div class="kb-grid3" style="border:.5px solid #c0bdb5; border-bottom:none">
-    <div class="kb-c"><span class="kb-cl">Fuel / Ext</span><span class="kb-cv" contenteditable="true" onblur="setLo('${g.name}','fuel',this.innerText)">${lo.fuel}</span></div>
-    <div class="kb-c"><span class="kb-cl">Joker</span><span class="kb-cv" contenteditable="true" onblur="setLo('${g.name}','joker',this.innerText)">${lo.joker}</span></div>
-    <div class="kb-c"><span class="kb-cl">Bingo</span><span class="kb-cv" contenteditable="true" onblur="setLo('${g.name}','bingo',this.innerText)">${lo.bingo}</span></div>
-  </div>`;
-
-      wrap.appendChild(page1); wrap.appendChild(page2); return wrap;
-    }
-
-    // ════════════════════════════════════════════
-    // WAYPOINT EDITOR
-    // ════════════════════════════════════════════
-    function addWP(gname) {
-      if (!groupWPs[gname]) groupWPs[gname] = [];
-      const n = groupWPs[gname].length + 1;
-      groupWPs[gname].push({ desc: 'WP ' + n, hdg: '', dist: '', speed: '', alt: '', eta: '', coord: '' });
-      renderPreview();
-      // Scroll to added row
-      setTimeout(() => { const id = 'wp-body-' + gname.replace(/[^a-z0-9]/gi, '_'); const el = document.getElementById(id); if (el) el.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) }, 80);
-    }
-    function delWP(gname, i) {
-      if (groupWPs[gname]) groupWPs[gname].splice(i, 1);
-      renderPreview();
-    }
-    function setLo(gname, key, val) {
-      if (!groupLoadout[gname]) groupLoadout[gname] = { loadout: '', fuel: '', joker: '', bingo: '' };
-      groupLoadout[gname][key] = val;
-    }
-
-    /**
-     * Synchronisation BRIEFING → DATACARD :
-     * Quand l'utilisateur modifie l'airfield dans le tableau Nos Ressources du Briefing,
-     * met à jour l'input airfield de la Datacard Page 2 et ses cellules de données.
-     * @param {HTMLInputElement} input - L'input du briefing
-     * @param {string} gname - Nom du groupe (identifiant du flight)
-     */
-    function syncAirfieldFromBrief(input, gname) {
-      const afName = input.value.trim();
-      // 1) Mettre à jour les colonnes UHF/VHF du tableau Briefing
-      const afId = 'brief-af-' + gname.replace(/[^a-z0-9]/gi, '_');
-      const af = miz && AIRFIELDS && AIRFIELDS[miz.theatre]
-        ? Object.values(AIRFIELDS[miz.theatre]).find(a => a.name.toLowerCase() === afName.toLowerCase()) : null;
+  if (label === 'T/O' && gname) {
+    const afId     = 'brief-af-' + safeId(gname);
+    const briefInp = document.getElementById(afId);
+    if (briefInp) {
+      briefInp.value = af.name;
       const uhfEl = document.getElementById(afId + '-uhf');
       const vhfEl = document.getElementById(afId + '-vhf');
-      if (uhfEl) uhfEl.textContent = af ? (af.uhf !== 'n/a' ? af.uhf : '—') : '';
-      if (vhfEl) vhfEl.textContent = af ? (af.vhf !== 'n/a' ? af.vhf : '—') : '';
-      // 2) Propager vers la Datacard Page 2
-      const dcId = 'af-dl-' + gname.replace(/[^a-z0-9]/gi, '_');
-      const dcInput = document.getElementById(dcId);
-      if (dcInput && dcInput.value !== afName) {
-        dcInput.value = afName;
-        fillAirbaseRow(dcInput, gname, 'T/O');
-      }
+      if (uhfEl) uhfEl.textContent = af.uhf  !== 'n/a' ? af.uhf  : '—';
+      if (vhfEl) vhfEl.textContent = af.vhf  !== 'n/a' ? af.vhf  : '—';
+    }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CONSTRUCTEURS D'EN-TÊTES (helpers DOM)
+   ════════════════════════════════════════════════════════════════ */
+
+function mkShdr(text) {
+  const d = document.createElement('div'); d.className = 'kb-shdr'; d.textContent = text; return d;
+}
+function mkMhdr2(text) {
+  const d = document.createElement('div'); d.className = 'kb-mhdr2'; d.textContent = text; return d;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   EXPORT PDF (html2canvas + jsPDF)
+   ════════════════════════════════════════════════════════════════ */
+
+async function genPDF() {
+  setStatus('Génération PDF en cours...', 10);
+  document.getElementById('btn-pdf').disabled = true;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc   = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const pages = [...document.querySelectorAll('.kb-page')];
+    const A4W = 210, A4H = 297;
+
+    for (let i = 0; i < pages.length; i++) {
+      setStatus(`Capture page ${i+1}/${pages.length}...`, 10 + Math.floor(i/pages.length * 80));
+      if (i > 0) doc.addPage('a4', 'portrait');
+
+      const canvas = await html2canvas(pages[i], {
+        scale:       2,
+        useCORS:     true,
+        backgroundColor: '#ffffff',
+        width:       794,
+        height:      1123,
+        windowWidth: 794,
+        logging:     false
+      });
+      doc.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, A4W, A4H);
     }
 
-    /**
-     * Synchronisation DATACARD → BRIEFING :
-     * Quand l'utilisateur modifie l'airfield dans la Datacard Page 2,
-     * met à jour l'input airfield du Briefing et ses colonnes UHF/VHF.
-     * (Cette fonction est appelée depuis oninput sur l'input de la Datacard)
-     * @param {HTMLInputElement} input - L'input de la datalist Datacard
-     * @param {string} gname - Nom du groupe (identifiant du flight)
-     * @param {string} label - Étiquette de la ligne (T/O, ALT, DIV)
-     */
-    function fillAirbaseRow(input, gname, label) {
-      if (!miz || !AIRFIELDS || !AIRFIELDS[miz.theatre]) return;
-      const matchName = input.value.trim().toLowerCase();
-      const af = Object.values(AIRFIELDS[miz.theatre]).find(a => a.name.toLowerCase() === matchName);
-      if (!af) return;
-      // Remplir les TD contenteditable de la même ligne
-      const row = input.closest('tr');
-      if (!row) return;
-      const tds = row.querySelectorAll('td[contenteditable]');
-      if (tds[0]) tds[0].textContent = af.uhf !== 'n/a' ? af.uhf : '';
-      if (tds[1]) tds[1].textContent = af.vhf !== 'n/a' ? af.vhf : '';
-      if (tds[2]) tds[2].textContent = af.rwy || '';
-      if (tds[3]) tds[3].textContent = af.ils !== 'n/a' ? af.ils : '';
-      if (tds[4]) tds[4].textContent = af.tacan !== 'n/a' ? af.tacan : '';
-      // Si c'est la ligne T/O, propager vers le Briefing (liaison inverse)
-      if (label === 'T/O' && gname) {
-        const afId = 'brief-af-' + gname.replace(/[^a-z0-9]/gi, '_');
-        const briefInput = document.getElementById(afId);
-        if (briefInput && briefInput.value.toLowerCase() !== matchName) {
-          briefInput.value = af.name;
-          const uhfEl = document.getElementById(afId + '-uhf');
-          const vhfEl = document.getElementById(afId + '-vhf');
-          if (uhfEl) uhfEl.textContent = af.uhf !== 'n/a' ? af.uhf : '—';
-          if (vhfEl) vhfEl.textContent = af.vhf !== 'n/a' ? af.vhf : '—';
-        }
-      }
-    }
+    const nom = (fd.nom || 'kneeboard').replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`${nom}_kneeboard.pdf`);
+    setStatus(`PDF téléchargé : ${nom}_kneeboard.pdf`, 100);
+  } catch (e) {
+    setStatus('Erreur PDF : ' + e.message, 0);
+    console.error(e);
+  }
+  document.getElementById('btn-pdf').disabled = false;
+}
 
-    // ════════════════════════════════════════════
-    // PDF & HTML GENERATION
-    // ════════════════════════════════════════════
-    // Utilise html2canvas page par page pour une capture pixel-perfect
-    async function genPDF() {
-      st('Génération PDF en cours...', 10);
-      document.getElementById('btn-pdf').disabled = true;
-      try {
-        const { jsPDF } = window.jspdf;
-        // A4 portrait : 210 x 297 mm
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const pages = [...document.querySelectorAll('.kb-page')];
-        const A4W = 210, A4H = 297;
-        for (let i = 0; i < pages.length; i++) {
-          st(`Capture page ${i + 1}/${pages.length}...`, 10 + Math.floor(i / pages.length * 80));
-          if (i > 0) doc.addPage('a4', 'portrait');
-          // Capturer la page avec html2canvas
-          const canvas = await html2canvas(pages[i], {
-            scale: 2,           // haute résolution
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            width: 794,          // 210mm @ 96dpi
-            height: 1123,        // 297mm @ 96dpi
-            windowWidth: 794,
-            logging: false
-          });
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
-          doc.addImage(imgData, 'JPEG', 0, 0, A4W, A4H);
-        }
-        const nom = (fd.nom || 'kneeboard').replace(/[^a-zA-Z0-9_-]/g, '_');
-        doc.save(`${nom}_kneeboard.pdf`);
-        st(`PDF téléchargé : ${nom}_kneeboard.pdf`, 100);
-      } catch (e) {
-        st('Erreur PDF: ' + e.message, 0);
-        console.error(e);
-      }
-      document.getElementById('btn-pdf').disabled = false;
-    }
+/* ════════════════════════════════════════════════════════════════
+   EXPORT HTML (snapshot statique)
+   ════════════════════════════════════════════════════════════════ */
 
-    function genHTML() {
-      const htmlContent = `<!DOCTYPE html>
+function genHTML() {
+  /* Sérialisation sûre : on clone le nœud et on désactive les interactions */
+  const clone = document.getElementById('kbpages').cloneNode(true);
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  clone.querySelectorAll('.row-add, .row-del, .no-print').forEach(el => el.remove());
+
+  const styleEl = document.querySelector('style');
+  const css     = styleEl ? styleEl.textContent : '';
+
+  const htmlContent = `<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Export Kneeboard - ${fd.nom || 'Mission'}</title>
+<title>Export Kneeboard — ${esc(fd.nom || 'Mission')}</title>
 <style>
-${document.querySelector('style').innerHTML}
+${css}
 body { background: #1c1e26; padding: 20px; overflow: auto; }
-.app { display: block; height: auto; }
+.app  { display: block; height: auto; }
 .left, .r-bar { display: none !important; }
-.right { overflow: visible; background: transparent; }
+.right  { overflow: visible; background: transparent; }
 .r-scroll { padding: 0; background: transparent; overflow: visible; }
-.kb-wrap { justify-content: center; margin-bottom: 20px; }
-/* Disable interactions on export */
-.kb-cv[contenteditable], .kb-tbl td[contenteditable] { pointer-events: none; }
-.row-add, .row-del, button.no-print { display: none !important; }
+.kb-wrap  { justify-content: center; margin-bottom: 20px; }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="right">
-    <div class="r-scroll">
-      ${document.getElementById('kbpages').outerHTML}
-    </div>
-  </div>
-</div>
+<div class="app"><div class="right"><div class="r-scroll">
+${clone.outerHTML}
+</div></div></div>
 </body>
 </html>`;
-      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      const nom = (fd.nom || 'kneeboard').replace(/[^a-zA-Z0-9_-]/g, '_');
-      a.download = `${nom}_export.html`;
-      a.click();
-    }
-  </script>
-</body>
 
+  const blob = new Blob([htmlContent], { type:'text/html;charset=utf-8' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = (fd.nom || 'kneeboard').replace(/[^a-zA-Z0-9_-]/g,'_') + '_export.html';
+  a.click();
+  /* Libérer l'URL objet après le téléchargement */
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+</script>
+</body>
 </html>
