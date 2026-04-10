@@ -305,7 +305,7 @@ function parseGroupWaypoints(groupContent, startTime, task, theatre) {
    8. PARSEUR PRINCIPAL
    Méthodologie v7 : ancrage sur ["groupId"] + getEnclosingBlock
 ══════════════════════════════════════════════════════════════ */
-const SUP_KEYS   = ['awacs','tanker','refuel','jtac','fac','ewr','kc-135','kc135','il-78','s-3b','e-3'];
+const SUP_KEYS   = ['awacs','tanker','refuel','jtac','fac','kc-135','kc135','il-','s-3b', 'a-50','e-3', 'e-2', 'c-'];
 const SKIP_TYPES = ['Kub','ZU-','SA-','Ural','truck','Infantry','BMP','BTR','T-72','T-80','Abrams','Bradley','Tigr','Humvee','AAA'];
 const SKIP_NAMES = new Set(['Blue','Red','Neutral','blue','red','neutrals','USA','France','Russia','Germany','Syria','Iran','Georgia','China']);
 /* ── Exclusions logistique (véhicules non-combat) ── */
@@ -402,6 +402,31 @@ function normalizeSystem(unitType, isShip) {
   return null;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   v8 — Détection de catégorie DCS pour un groupe
+   Basé sur la position du groupId dans le lua complet
+══════════════════════════════════════════════════════════════ */
+
+function detectDcsCategory(luaText, groupGlobalIndex) {
+  const before = luaText.substring(0, groupGlobalIndex);
+
+  const idxPlane = before.lastIndexOf('["plane"]');
+  const idxHeli  = before.lastIndexOf('["helicopter"]');
+  const idxVeh   = before.lastIndexOf('["vehicle"]');
+  const idxShip  = before.lastIndexOf('["ship"]');
+
+  const max = Math.max(idxPlane, idxHeli, idxVeh, idxShip);
+
+  if (max === -1) return 'unknown';
+  if (max === idxPlane) return 'plane';
+  if (max === idxHeli)  return 'helicopter';
+  if (max === idxVeh)   return 'vehicle';
+  if (max === idxShip)  return 'ship';
+
+  return 'unknown';
+}
+
+
 window.parseMiz = function (content, theatre, dictionary = {}) {
 
   const translate = s => (s && String(s).startsWith('DictKey')) ? (dictionary[s]||s) : s;
@@ -416,6 +441,7 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
       air:[]
     },
   };
+
 
   /* ── start_time : dernière occurrence (v12 fix) ── */
   const stAll = [...content.matchAll(/\["start_time"\]\s*=\s*([\d.]+)/g)];
@@ -511,143 +537,156 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
   ];
 
   for (const { key: coalKey, name: coalName } of COAL_MAP) {
-    /* Extraire le bloc de cette coalition */
-    const cRe = new RegExp(`\\["${coalKey}"\\]\\s*=\\s*\\{`, 'g');
-    const cM  = cRe.exec(coalitionContent);
-    if (!cM) continue;
-    const coalBlock = extractBlock(coalitionContent, coalitionContent.indexOf('{', cM.index));
+  /* Extraire le bloc de cette coalition */
+  const cRe = new RegExp(`\\["${coalKey}"\\]\\s*=\\s*\\{`, 'g');
+  const cM  = cRe.exec(coalitionContent);
+  if (!cM) continue;
+  const coalBlock = extractBlock(coalitionContent, coalitionContent.indexOf('{', cM.index));
 
-    /* Trouver tous les groupIds dans cette coalition */
-    const groupIdRe = /\["groupId"\]\s*=\s*\d+/g;
-    let gm;
-    const seen = new Set(); /* éviter les doublons */
+  /* Trouver tous les groupIds dans cette coalition */
+  const groupIdRe = /\["groupId"\]\s*=\s*\d+/g;
+  let gm;
+  const seen = new Set(); /* éviter les doublons */
 
-    while ((gm = groupIdRe.exec(coalBlock)) !== null) {
-      const gc = getEnclosingBlock(coalBlock, gm.index);
+  while ((gm = groupIdRe.exec(coalBlock)) !== null) {
+    const gc = getEnclosingBlock(coalBlock, gm.index);
 
-      /* Nom du groupe */
-      const nameM = gc.match(/\["name"\]\s*=\s*"([^"]+)"/);
-      if (!nameM) continue;
-      const name = translate(nameM[1]);
-      if (SKIP_NAMES.has(name)) continue;
-      if (seen.has(name)) continue;
-      seen.add(name);
+    /* v8 : retrouver l’index global et la catégorie DCS */
+    const groupIdText = gm[0]; // ex: ["groupId"] = 12
+    const globalIdx = content.indexOf(groupIdText);
+    const dcsCategory = detectDcsCategory(content, globalIdx);
 
-      /* Fréquence groupe */
-      const freqM = gc.match(/\["frequency"\]\s*=\s*([\d.]+)/);
-      const freq  = freqM ? parseFloat(freqM[1]) : 0;
-      if (freq < 100) continue;
+    /* Nom du groupe */
+    const nameM = gc.match(/\["name"\]\s*=\s*"([^"]+)"/);
+    if (!nameM) continue;
+    const name = translate(nameM[1]);
+    if (SKIP_NAMES.has(name)) continue;
+    if (seen.has(name)) continue;
+    seen.add(name);
 
-      /* Bloc units via marqueur "end of" (v7) */
-      const ucM = gc.match(/\["units"\]\s*=\s*\{([\s\S]*?)\n\s*\},\s*--\s*end of \["units"\]/);
-      const uc  = ucM ? ucM[1] : '';
-      if (!uc) continue;
+    /* Fréquence groupe */
+    const freqM = gc.match(/\["frequency"\]\s*=\s*([\d.]+)/);
+    const freq  = freqM ? parseFloat(freqM[1]) : 0;
+    if (freq < 100) continue;
 
-      /* Type d'appareil */
-      const typeM  = uc.match(/\["type"\]\s*=\s*"([^"]+)"/);
-      const acType = typeM ? translate(typeM[1]) : '';
-      if (SKIP_TYPES.some(s => acType.includes(s))) continue;
+    /* Bloc units via marqueur "end of" (v7) */
+    const ucM = gc.match(/\["units"\]\s*=\s*\{([\s\S]*?)\n\s*\},\s*--\s*end of \["units"\]/);
+    const uc  = ucM ? ucM[1] : '';
+    if (!uc) continue;
 
-      /* ── Nombre d'unités : compter ["unitId"] (v7, fiable) ── */
-      const numUnits = (uc.match(/\["unitId"\]/g) || []).length || 1;
+    /* Type d'appareil */
+    const typeM  = uc.match(/\["type"\]\s*=\s*"([^"]+)"/);
+    const acType = typeM ? translate(typeM[1]) : '';
+    if (SKIP_TYPES.some(s => acType.includes(s))) continue;
 
-      const taskM = gc.match(/\["task"\]\s*=\s*"([^"]+)"/);
-      const task  = taskM ? translate(taskM[1]) : '';
-      const isPlayer = uc.includes('"Player"') || uc.includes('"Instructor"');
+    /* ── Nombre d'unités : compter ["unitId"] (v7, fiable) ── */
+    const numUnits = (uc.match(/\["unitId"\]/g) || []).length || 1;
 
-      /* ── Membres : split sur unitId (v7) ── */
-      const members = [];
-      const unitBlocks = uc.split(/\["unitId"\]\s*=\s*\d+/);
-      unitBlocks.shift(); /* supprimer le fragment avant le premier unitId */
-      unitBlocks.forEach(ub => {
-        const unameM = ub.match(/\["name"\]\s*=\s*"([^"]+)"/);
-        const uname  = unameM ? unameM[1] : '';
-        /* Callsign : priorité table {name}, puis [4], puis scalaire */
-        const csM = ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\["name"\]\s*=\s*"([^"]+)"/)
-                 || ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\[4\]\s*=\s*"([^"]+)"/)
-                 || ub.match(/\["callsign"\]\s*=\s*"([^"]+)"/)
-                 || ub.match(/\["callsign"\]\s*=\s*(\d+)/);
-        const finalCs = (csM && csM[1]) ? translate(csM[1]) : uname.split('_').pop() || '';
-        const dlM = ub.match(/\["STN_L16"\]\s*=\s*"?([0-9A-Z]+)"?/);
-        members.push({ callsign: finalCs, tacan:'', dl: dlM ? dlM[1] : '' });
-      });
+    const taskM = gc.match(/\["task"\]\s*=\s*"([^"]+)"/);
+    const task  = taskM ? translate(taskM[1]) : '';
+    const isPlayer = uc.includes('"Player"') || uc.includes('"Instructor"');
 
-      /* Callsign de groupe = premier membre (v7) */
-      const csGrpM = uc.match(/\["name"\]\s*=\s*"([A-Za-z][A-Za-z0-9]*?)\d{2,}"/);
-      const baseCs = csGrpM ? translate(csGrpM[1]) : name.replace(/^[A-Z0-9]+_/, '');
-      const callsign = members[0]?.callsign || baseCs;
+    /* ── Membres : split sur unitId (v7) ── */
+    const members = [];
+    const unitBlocks = uc.split(/\["unitId"\]\s*=\s*\d+/);
+    unitBlocks.shift(); /* supprimer le fragment avant le premier unitId */
+    unitBlocks.forEach(ub => {
+      const unameM = ub.match(/\["name"\]\s*=\s*"([^"]+)"/);
+      const uname  = unameM ? unameM[1] : '';
+      /* Callsign : priorité table {name}, puis [4], puis scalaire */
+      const csM = ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\["name"\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*\{[\s\S]*?\[4\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*"([^"]+)"/)
+               || ub.match(/\["callsign"\]\s*=\s*(\d+)/);
+      const finalCs = (csM && csM[1]) ? translate(csM[1]) : uname.split('_').pop() || '';
+      const dlM = ub.match(/\["STN_L16"\]\s*=\s*"?([0-9A-Z]+)"?/);
+      members.push({ callsign: finalCs, tacan:'', dl: dlM ? dlM[1] : '' });
+    });
 
-      /* ── Radio (première unité) ── */
-      /* Extraire le bloc de la première unité pour la radio */
-      const firstUnitBlock = unitBlocks[0] || uc;
-      const radios = parseRadioChannels(firstUnitBlock);
+    /* Callsign de groupe = premier membre (v7) */
+    const csGrpM = uc.match(/\["name"\]\s*=\s*"([A-Za-z][A-Za-z0-9]*?)\d{2,}"/);
+    const baseCs = csGrpM ? translate(csGrpM[1]) : name.replace(/^[A-Z0-9]+_/, '');
+    const callsign = members[0]?.callsign || baseCs;
 
-      /* ── TACAN beacon ── */
-      const tacan = parseTacanBeacon(gc);
+    /* ── Radio (première unité) ── */
+    const firstUnitBlock = unitBlocks[0] || uc;
+    const radios = parseRadioChannels(firstUnitBlock);
 
-      /* ── Armement, fuel, countermeasures ── */
-      const fuelM = uc.match(/\["fuel"\]\s*=\s*([\d.]+)/);
-      const fuelKg = fuelM ? Math.round(parseFloat(fuelM[1])) : null;
+    /* ── TACAN beacon ── */
+    const tacan = parseTacanBeacon(gc);
 
-      /* Chaff/flare/gun depuis payload de la première unité */
-      let chaff=0, flare=0, gun=0;
-      const payloadM = uc.match(/\["payload"\]\s*=\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/);
-      if (payloadM) {
-        const ps = payloadM[1];
-        chaff = parseFloat((ps.match(/\["chaff"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
-        flare = parseFloat((ps.match(/\["flare"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
-        gun   = parseFloat((ps.match(/\["gun"\]\s*=\s*([\d.]+)/)   || [])[1] || 0);
-      }
-      /* Fallback direct */
-      if (!chaff) chaff = parseFloat((uc.match(/\["chaff"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
-      if (!flare) flare = parseFloat((uc.match(/\["flare"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
-      if (!gun)   gun   = parseFloat((uc.match(/\["gun"\]\s*=\s*([\d.]+)/)   || [])[1] || 0);
+    /* ── Armement, fuel, countermeasures ── */
+    const fuelM = uc.match(/\["fuel"\]\s*=\s*([\d.]+)/);
+    const fuelKg = fuelM ? Math.round(parseFloat(fuelM[1])) : null;
 
-      const weapons = [...new Set(
-        (uc.match(/\["CLSID"\]\s*=\s*"([^"]+)"/g) || [])
-          .map(w => w.match(/"([^"]+)"$/)?.[1]).filter(Boolean)
-      )];
+    /* Chaff/flare/gun depuis payload de la première unité */
+    let chaff=0, flare=0, gun=0;
+    const payloadM = uc.match(/\["payload"\]\s*=\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/);
+    if (payloadM) {
+      const ps = payloadM[1];
+      chaff = parseFloat((ps.match(/\["chaff"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
+      flare = parseFloat((ps.match(/\["flare"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
+      gun   = parseFloat((ps.match(/\["gun"\]\s*=\s*([\d.]+)/)   || [])[1] || 0);
+    }
+    /* Fallback direct */
+    if (!chaff) chaff = parseFloat((uc.match(/\["chaff"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
+    if (!flare) flare = parseFloat((uc.match(/\["flare"\]\s*=\s*([\d.]+)/) || [])[1] || 0);
+    if (!gun)   gun   = parseFloat((uc.match(/\["gun"\]\s*=\s*([\d.]+)/)   || [])[1] || 0);
 
-      /* ── Waypoints ── */
-      const { wps, toTime, totTime, airdrome } = parseGroupWaypoints(gc, res.start_time, task, theatre);
+    const weapons = [...new Set(
+      (uc.match(/\["CLSID"\]\s*=\s*"([^"]+)"/g) || [])
+        .map(w => w.match(/"([^"]+)"$/)?.[1]).filter(Boolean)
+    )];
 
-      /* ── Position du groupe ── */
-      const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/);
-      const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
+    /* ── Waypoints ── */
+    const { wps, toTime, totTime, airdrome } = parseGroupWaypoints(gc, res.start_time, task, theatre);
 
-      /* ── Catégories ── */
-      const isSup = SUP_KEYS.some(k => name.toLowerCase().includes(k) || acType.toLowerCase().includes(k) || task.toLowerCase().includes(k));
-      const tankerOrbit = isSup ? parseTankerOrbit(gc, theatre) : null;
+    /* ── Position du groupe ── */
+    const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/);
+    const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
 
-      /* ── Menaces aériennes : toutes coalitions (filtrage dans HTML) ── */
-      if (!isSup)
-        res.threats.air.push({ name, type:acType, coalition:coalName, callsign });
+    /* ── Catégories ── */
+    const isSup = SUP_KEYS.some(k =>
+      name.toLowerCase().includes(k) ||
+      acType.toLowerCase().includes(k) ||
+      task.toLowerCase().includes(k)
+    );
+    const tankerOrbit = isSup ? parseTankerOrbit(gc, theatre) : null;
 
-      const entry = {
-        name, callsign, acType,
-        numUnits,
-        task, freq, tacan,
-        isPlayer, isSup,
-        weapons, waypoints: wps,
-        toTime, totTime, airdrome,
-        start_time: res.start_time,  /* pour recalcul ETA absolu côté HTML */
-        x: xm ? parseFloat(xm[1]) : 0,
-        y: ym ? parseFloat(ym[1]) : 0,
-        coalition: coalName,
-        members,
-        fuelKg, fuel: fuelKg !== null ? String(fuelKg) : '',
-        chaff: Math.round(chaff), flare: Math.round(flare), gun: Math.round(gun),
-        tankerOrbit,
-        channelsUHF: radios.channelsUHF,
-        channelsVHF: radios.channelsVHF,
-        freqUHF: radios.freqUHF,
-        freqVHF: radios.freqVHF,
-      };
+    /* ── Menaces aériennes : toutes coalitions (filtrage dans HTML) ── */
+    if (!isSup)
+      res.threats.air.push({ name, type:acType, coalition:coalName, callsign });
+
+    const entry = {
+      name, callsign, acType,
+      numUnits,
+      task, freq, tacan,
+      isPlayer, isSup,
+      weapons, waypoints: wps,
+      toTime, totTime, airdrome,
+      start_time: res.start_time,  /* pour recalcul ETA absolu côté HTML */
+      x: xm ? parseFloat(xm[1]) : 0,
+      y: ym ? parseFloat(ym[1]) : 0,
+      coalition: coalName,
+      members,
+      fuelKg, fuel: fuelKg !== null ? String(fuelKg) : '',
+      chaff: Math.round(chaff), flare: Math.round(flare), gun: Math.round(gun),
+      tankerOrbit,
+      channelsUHF: radios.channelsUHF,
+      channelsVHF: radios.channelsVHF,
+      freqUHF: radios.freqUHF,
+      freqVHF: radios.freqVHF,
+
+      /* v8 : catégorie brute DCS */
+      dcsCategory,
+    };
+
+
 
       if (isSup) res.support.push(entry);
       else       res.groups.push(entry);
-    }
   }
+}
 
   /* ── Pass 2 : Menaces sol/marine pour toutes coalitions ─────────────
      On cherche les groupId avec un type reconnu SAM/AAA/navire,
