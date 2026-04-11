@@ -341,7 +341,7 @@ function parseGroupWaypoints(groupContent, startTime, task, theatre) {
    8. PARSEUR PRINCIPAL
    Méthodologie v7 : ancrage sur ["groupId"] + getEnclosingBlock
 ══════════════════════════════════════════════════════════════ */
-const SUP_KEYS   = ['awacs','tanker','refuel','jtac','fac','kc-135','kc135','il-','s-3b', 'a-50','e-3', 'e-2', 'c-'];
+const SUP_TASKS  = ['transport', 'awacs', 'refuel', 'tanker', 'recoverytanker'];
 const SKIP_TYPES = ['Kub','ZU-','SA-','Ural','truck','Infantry','BMP','BTR','T-72','T-80','Abrams','Bradley','Tigr','Humvee','AAA'];
 const SKIP_NAMES = new Set(['Blue','Red','Neutral','blue','red','neutrals','USA','France','Russia','Germany','Syria','Iran','Georgia','China']);
 /* ── Exclusions logistique (véhicules non-combat) ── */
@@ -365,9 +365,9 @@ function normalizeSystem(unitType, isShip) {
   if (isShip) {
     if (['carrier','cvn','kuznetsov','nimitz','stennis','forrestal','charles','garibaldi']
         .some(x => u.includes(x)))
-      return { cat:'NAVAL_CVN', label:'Carrier (CVN/STOBAR)' };
-    /* Label générique pour déduplication — le nom brut reste dans .type */
-    return { cat:'NAVAL_SURFACE', label: 'Surface Combatant' };
+      return { cat:'NAVAL_CVN', label: unitType };
+    /* Garde le type de base pour différencier les classes */
+    return { cat:'NAVAL_SURFACE', label: unitType };
   }
 
   /* ── SAM LONG PORTÉE ── */
@@ -602,8 +602,19 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
     if (seen.has(name)) continue;
     seen.add(name);
 
-    /* Fréquence groupe */
-    const freqM = gc.match(/\["frequency"\]\s*=\s*([\d.]+)/);
+    /* Fréquence groupe : isoler la racine en ignorant "route" et "units" */
+    let gcRoot = gc;
+    const rStart = gcRoot.indexOf('["route"]');
+    if (rStart !== -1) {
+      const rEnd = gcRoot.indexOf('end of ["route"]', rStart);
+      if (rEnd !== -1) gcRoot = gcRoot.substring(0, rStart) + gcRoot.substring(rEnd + 16);
+    }
+    const uStart = gcRoot.indexOf('["units"]');
+    if (uStart !== -1) {
+      const uEnd = gcRoot.indexOf('end of ["units"]', uStart);
+      if (uEnd !== -1) gcRoot = gcRoot.substring(0, uStart) + gcRoot.substring(uEnd + 16);
+    }
+    const freqM = gcRoot.match(/\["frequency"\]\s*=\s*([\d.]+)/);
     const freq  = freqM ? parseFloat(freqM[1]) : 0;
     if (freq < 100) continue;
 
@@ -657,8 +668,7 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
     const callsign = members[0]?.callsign || baseCs;
 
     /* ── Radio (première unité) ── */
-    const firstUnitBlock = unitBlocks[0] || uc;
-    const radios = parseRadioChannels(firstUnitBlock);
+    const radios = parseRadioChannels(uc);
 
     /* ── TACAN beacon ── */
     const tacan = parseTacanBeacon(gc);
@@ -693,17 +703,15 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
     const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/);
     const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
 
+    /* ── Menaces aériennes : toutes coalitions, sans doublons ── */
+    const isAir1 = dcsCategory === 'plane' || dcsCategory === 'helicopter';
+
     /* ── Catégories ── */
-    const isSup = SUP_KEYS.some(k =>
-      name.toLowerCase().includes(k) ||
-      acType.toLowerCase().includes(k) ||
-      task.toLowerCase().includes(k)
-    );
+    const isSup = isAir1 && SUP_TASKS.some(k => task.toLowerCase().includes(k));
     const tankerOrbit = isSup ? parseTankerOrbit(gc, theatre) : null;
 
-    /* ── Menaces aériennes : toutes coalitions, sans doublons ── */
-    if (!isSup && !res.threats.air.some(t => t.name === name))
-      res.threats.air.push({ name, type:acType, coalition:coalName, callsign });
+    if (isAir1 && !isSup && !res.threats.air.some(t => t.name === name))
+      res.threats.air.push({ name, type:acType, coalition:coalName, callsign, dcsCategory });
 
     const entry = {
       name, callsign, acType,
@@ -729,7 +737,7 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
       dcsCategory,
     };
 
-      if (isSup) res.support.push(entry);
+      if (isSup || dcsCategory === 'ship') res.support.push(entry);
       else       res.groups.push(entry);
     } /* end while groupIdRe */
   } /* end for COAL_MAP */
@@ -755,9 +763,15 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
       if (seen2.has(gname)) continue;
       seen2.add(gname);
 
-      /* Ignorer les groupes déjà indexés comme PKG ou support */
+      /* Détecter la catégorie DCS via la même logique que le pass1 */
+      const gidx2   = content.indexOf(gm2[0]);
+      const dcat2   = gidx2 !== -1 ? detectDcsCategory(content, gidx2) : 'unknown';
+      const isShip2 = dcat2 === 'ship';
+      const isAir2  = dcat2 === 'plane' || dcat2 === 'helicopter';
+
+      /* Ignorer les groupes air déjà indexés comme PKG ou support */
       const alreadyAir = [...res.groups, ...res.support].some(e => e.name === gname);
-      if (alreadyAir) continue;
+      if (alreadyAir && isAir2) continue;
 
       const ucM2 = gc2.match(/\["units"\]\s*=\s*\{([\s\S]*?)\n\s*\},\s*--\s*end of \["units"\]/);
       const uc2  = ucM2 ? ucM2[1] : gc2; /* fallback sur tout le bloc groupe */
@@ -771,19 +785,9 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
       const y2  = ym2 ? parseFloat(ym2[1]) : 0;
       const ll2 = String(window.xy2dmm(x2, y2, theatre));
 
-      /* Détecter la catégorie DCS via la même logique que le pass1 */
-      const gidx2   = content.indexOf(gm2[0]);
-      const dcat2   = gidx2 !== -1 ? detectDcsCategory(content, gidx2) : 'unknown';
-      const isShip2 = dcat2 === 'ship';
-      const isAir2  = dcat2 === 'plane' || dcat2 === 'helicopter';
-
       /* Groupes air non indexés (freq<100) → threats.air (sans doublons) */
       if (isAir2 && !alreadyAir && !res.threats.air.some(t => t.name === gname)) {
-        res.threats.air.push({ name:gname, type:type2, label:type2, coalition:coalName, callsign:'' });
-      }
-      /* Vehicules/navires → ne vont PAS dans threats.air */
-      if (!isAir2 && !alreadyAir) {
-
+        res.threats.air.push({ name:gname, type:type2, label:type2, coalition:coalName, callsign:'', dcsCategory: dcat2 });
       }
       const norm = !isAir2 ? normalizeSystem(type2, isShip2) : null;
       if (norm) {
@@ -833,8 +837,8 @@ window.buildThreatSurface = function(threats, enemyCoal) {
   if (mr)  lines.push('SAM MR: ' + mr);
   if (sr)  lines.push('SAM SR: ' + sr);
   if (aa)  lines.push('AAA: ' + aa);
-  if (cvn) lines.push('Porte-Avions: ' + cvn);
-  if (nav) lines.push('Navires: ' + nav);
+  if (cvn) lines.push('Portes-Avions: ' + cvn);
+  if (nav) lines.push('Autres Navires: ' + nav);
   return lines.join('\n');
 };
 
@@ -846,13 +850,19 @@ window.buildThreatSurface = function(threats, enemyCoal) {
  */
 window.buildThreatAir = function(threats, enemyCoal) {
   const NON_AIR = /kub|zu-|sa-[0-9]|buk|tor |osa |shilka|zsu|flak|phalanx|patriot|hawk|roland|rapier|stinger|ship|boat|frigate|destroyer|carrier|truck|vehicle|infantry|cow|sheep|horse|civilian/i;
-  const types = [...new Set(
-    (threats.air||[])
-      .filter(t => !enemyCoal || t.coalition === enemyCoal)
-      .map(t => t.type || t.label || t.name)
-      .filter(t => t && !NON_AIR.test(t))
-  )];
-  return types.join('\n');
+  const filtered = (threats.air||[]).filter(t => {
+    if (enemyCoal && t.coalition !== enemyCoal) return false;
+    const typeStr = t.type || t.label || t.name;
+    return typeStr && !NON_AIR.test(typeStr);
+  });
+
+  const planes = [...new Set(filtered.filter(t => t.dcsCategory === 'plane' || !t.dcsCategory).map(t => t.type || t.label || t.name))];
+  const helos  = [...new Set(filtered.filter(t => t.dcsCategory === 'helicopter').map(t => t.type || t.label || t.name))];
+
+  const lines = [];
+  if (helos.length) lines.push('Hélicoptères: ' + helos.join(', '));
+  if (planes.length) lines.push('Avions: ' + planes.join(', '));
+  return lines.join('\n');
 };
 
 })(window);
