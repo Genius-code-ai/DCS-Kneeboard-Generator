@@ -950,20 +950,46 @@
       flex: 1 1 auto;
       min-height: 0;
       overflow: auto;
-      white-space: normal;
+      white-space: pre-wrap;
+      color: #0d1e3e;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.25;
     }
 
     /* Zone contenteditable libre (notes, croquis) */
     .kb-free {
       flex: 1;
       padding: 6px;
-      font-size: 9px;
-      font-weight: 700;
-      color: #0d1e3e;
-      line-height: 1.4;
+      font-family: 'Barlow Condensed', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      color: #0d1e3e !important;
+      line-height: 1.25 !important;
       white-space: pre-wrap;
       overflow: auto;
       border: .5px solid #c0bdb5;
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: normal;
+    }
+
+    /* Neutralise TOUT élément créé automatiquement par le navigateur en contentEditable */
+    .kb-free *,
+    .kb-free div,
+    .kb-free p,
+    .kb-free span,
+    .kb-free b,
+    .kb-free br + div {
+      color: #0d1e3e !important;
+      font-family: 'Barlow Condensed', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      font-style: normal !important;
+      line-height: 1.25 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 0 !important;
     }
 
     .kb-free:focus {
@@ -972,8 +998,9 @@
 
     .kb-free:empty::before {
       content: attr(data-placeholder);
-      color: #aaa;
-      font-style: italic;
+      color: #aaa !important;
+      font-weight: 400 !important;
+      font-style: normal !important;
     }
 
     /* Wrapper pour un tableau avec scroll interne si dépassement */
@@ -1247,6 +1274,22 @@
      * @param {string} str
      * @returns {string}
      */
+    /* Sanitise une zone kb-free : remplace tout le HTML par texte+<br> purs
+       pour éviter les div/p avec marges créés automatiquement par le navigateur */
+    function sanitizeFree(el, saveFn) {
+      const rawText = el.innerText || '';
+      const imgs = [...el.querySelectorAll('img')];
+      while (el.firstChild) el.removeChild(el.firstChild);
+      imgs.forEach(img => el.appendChild(img));
+      if (rawText.trim()) {
+        rawText.split('\n').forEach(function(line, i, arr) {
+          el.appendChild(document.createTextNode(line));
+          if (i < arr.length - 1) el.appendChild(document.createElement('br'));
+        });
+      }
+      saveFn(rawText);
+    }
+
     function esc(str) {
       if (str == null) return '';
       return String(str)
@@ -1979,11 +2022,17 @@
 
       const shdExec = mkShdr('EXECUTION DE LA MISSION / MISSION EXECUTION');
       const execBloc = makeCell('Qui / Quand / Comment', fd.exec);
-      execBloc.querySelector('.kb-cv').style.whiteSpace = 'normal';
+      execBloc.querySelector('.kb-cv').style.fontSize = '11px';
+      execBloc.querySelector('.kb-cv').style.lineHeight = '1.25';
+      execBloc.querySelector('.kb-cv').style.color = '#0d1e3e';
+      execBloc.querySelector('.kb-cv').style.whiteSpace = 'pre-wrap';
       execBloc.style.flex = '1';
       execBloc.style.minHeight = '140px';
       const roeBloc = makeCell('R.O.E.', fd.roe);
-      roeBloc.querySelector('.kb-cv').style.whiteSpace = 'normal';
+      roeBloc.querySelector('.kb-cv').style.fontSize = '11px';
+      roeBloc.querySelector('.kb-cv').style.lineHeight = '1.25';
+      roeBloc.querySelector('.kb-cv').style.color = '#0d1e3e';
+      roeBloc.querySelector('.kb-cv').style.whiteSpace = 'pre-wrap';
       roeBloc.style.flex = '0';
       roeBloc.style.height = '60px';
       roeBloc.style.minHeight = '60px';
@@ -2004,20 +2053,25 @@
       const shdIntel = mkShdr('INTELLIGENCE ET MENACES');
       const intelSam = makeCell('Menaces surface', fd.sam);
       intelSam.querySelector('.kb-cv').style.whiteSpace = 'pre-wrap';
-      intelSam.querySelector('.kb-cv').style.fontSize = '9px';
-      intelSam.querySelector('.kb-cv').style.lineHeight = '1.4';
+      intelSam.querySelector('.kb-cv').style.fontSize = '11px';
+      intelSam.querySelector('.kb-cv').style.lineHeight = '1.25';
       const intelAir = makeCell('Menaces aériennes', fd.air);
       intelAir.querySelector('.kb-cv').style.whiteSpace = 'pre-wrap';
-      intelAir.querySelector('.kb-cv').style.fontSize = '9px';
-      intelAir.querySelector('.kb-cv').style.lineHeight = '1.4';
+      intelAir.querySelector('.kb-cv').style.fontSize = '11px';
+      intelAir.querySelector('.kb-cv').style.lineHeight = '1.25';
       const intelArm = makeCell('Limitation armement', fd.armt);
       const intelPair = document.createElement('div');
       intelPair.className = 'kb-pair';
       intelPair.style.minHeight = '240px';
       intelPair.style.height = '240px';
       intelPair.append(intelSam, intelAir);
-      /* intelSam/intelAir gardent pre-wrap pour l'affichage multilignes */
-      [intelArm].forEach(c => c.querySelector('.kb-cv').style.whiteSpace = 'normal');
+      /* intelSam/intelAir/intelArm gardent pre-wrap pour l'affichage multilignes */
+      [intelArm].forEach(c => {
+        c.querySelector('.kb-cv').style.whiteSpace = 'pre-wrap';
+        c.querySelector('.kb-cv').style.fontSize = '11px';
+        c.querySelector('.kb-cv').style.lineHeight = '1.25';
+        c.querySelector('.kb-cv').style.color = '#0d1e3e';
+      });
 
       body.append(shdObj, objPair, shdExec, execBloc, roeBloc, shdNav, navRow, shdIntel, intelPair, intelArm);
 
@@ -2067,8 +2121,17 @@
 
       const imgArea = document.createElement('div');
       imgArea.className = 'kb-free';
-      imgArea.style.cssText = 'flex:1;display:flex;flex-direction:column;padding:12px;background:#f4f1eb;';
+      imgArea.style.flex = '1';
+      imgArea.style.display = 'flex';
+      imgArea.style.flexDirection = 'column';
+      imgArea.style.background = '#f4f1eb';
+      imgArea.style.fontSize = '11px';
+      imgArea.style.fontWeight = '700';
+      imgArea.style.color = '#0d1e3e';
+      imgArea.style.lineHeight = '1.25';
+      imgArea.style.whiteSpace = 'pre-wrap';
       imgArea.contentEditable = 'true';
+      imgArea.dataset.placeholder = 'Zone libre : texte ou image.';
 
       if (briefingImage) {
         const img = document.createElement('img');
@@ -2077,23 +2140,58 @@
         img.style.cssText = 'max-width:100%;object-fit:contain;display:block;margin-bottom:8px';
         imgArea.appendChild(img);
         if (briefingText) {
-          const t = document.createElement('div');
-          t.style.whiteSpace = 'pre-wrap';
-          t.textContent = briefingText;
+          const t = document.createTextNode(briefingText);
           imgArea.appendChild(t);
         }
       } else if (briefingText) {
         imgArea.textContent = briefingText;
-      } else {
-        const placeholder = document.createElement('div');
-        placeholder.style.cssText = 'color:#999;font-size:10px;text-align:center;line-height:1.4;margin-top:20px;';
-        placeholder.textContent = 'Zone libre : texte ou image.';
-        imgArea.appendChild(placeholder);
       }
 
-      /* Sauvegarder le texte à chaque modification */
-      imgArea.addEventListener('input', () => {
+      imgArea.addEventListener('input', () => { briefingText = imgArea.innerText || ''; });
+      imgArea.addEventListener('blur', () => sanitizeFree(imgArea, t => { briefingText = t; }));
+      imgArea.addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        sel.deleteFromDocument();
+        const range = sel.getRangeAt(0);
+        const lines = text.split('\n');
+        lines.forEach(function(line, i) {
+          range.insertNode(document.createTextNode(line));
+          range.collapse(false);
+          if (i < lines.length - 1) {
+            const br = document.createElement('br');
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.collapse(true);
+          }
+        });
+        sel.removeAllRanges();
+        sel.addRange(range);
         briefingText = imgArea.innerText || '';
+      });
+      imgArea.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const sel = window.getSelection();
+          if (!sel.rangeCount) return;
+          const range = sel.getRangeAt(0);
+          range.deleteContents();
+          const br = document.createElement('br');
+          range.insertNode(br);
+          // Si le <br> est le dernier nœud, ajouter un <br> sentinel
+          // pour que la nouvelle ligne soit visuellement visible
+          if (!br.nextSibling || (br.nextSibling.nodeType === Node.TEXT_NODE && br.nextSibling.textContent === '')) {
+            const sentinel = document.createElement('br');
+            br.parentNode.insertBefore(sentinel, br.nextSibling);
+          }
+          range.setStartAfter(br);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+          briefingText = imgArea.innerText || '';
+        }
       });
 
       /* Clear : efface seulement l'image, pas le texte */
@@ -2333,6 +2431,10 @@
       objFree.dataset.placeholder = 'Notes tactiques, dessins, croquis...';
       objFree.dataset.objFreeGroup = g.name;  /* pour mise à jour coalition */
       objFree.style.whiteSpace = 'pre-wrap';
+      objFree.style.color = '#0d1e3e';
+      objFree.style.fontSize = '11px';
+      objFree.style.fontWeight = '700';
+      objFree.style.lineHeight = '1.25';
       objFree.addEventListener('input', () => { objFree.dataset.userEdited = '1'; }, { once: true });
       const objPriority = [fd.obj1, fd.exec, fd.obj2, fd.sam, fd.air, fd.armt].filter(Boolean);
       objFree.textContent = objPriority.join('\n');
@@ -2543,8 +2645,18 @@
       const shdMap = mkShdr('Carte / Map');
       const mapBlock = document.createElement('div');
       mapBlock.className = 'kb-free';
-      mapBlock.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:8px;background:#f4f1eb;min-height:180px';
+      mapBlock.style.flex = '1';
+      mapBlock.style.display = 'flex';
+      mapBlock.style.flexDirection = 'column';
+      mapBlock.style.background = '#f4f1eb';
+      mapBlock.style.minHeight = '180px';
+      mapBlock.style.fontSize = '11px';
+      mapBlock.style.fontWeight = '700';
+      mapBlock.style.color = '#0d1e3e';
+      mapBlock.style.lineHeight = '1.25';
+      mapBlock.style.whiteSpace = 'pre-wrap';
       mapBlock.contentEditable = 'true';
+      mapBlock.dataset.placeholder = 'Zone libre : texte ou image.';
 
       const mapKey2 = safeId(g.name);
       const mapImage = groupMapImages[mapKey2];
@@ -2558,19 +2670,59 @@
         mapBlock.appendChild(img);
       }
       if (mapTxt) {
-        const t = document.createElement('div');
-        t.style.whiteSpace = 'pre-wrap';
-        t.textContent = mapTxt;
-        mapBlock.appendChild(t);
-      }
-      if (!mapImage && !mapTxt) {
-        const ph = document.createElement('div');
-        ph.style.cssText = 'color:#999;text-align:center;padding:8px;';
-        ph.textContent = 'Zone libre : texte ou image.';
-        mapBlock.appendChild(ph);
+        if (mapImage) {
+          mapBlock.appendChild(document.createTextNode(mapTxt));
+        } else {
+          mapBlock.textContent = mapTxt;
+        }
       }
 
       mapBlock.addEventListener('input', () => { groupMapText[mapKey2] = mapBlock.innerText || ''; });
+      mapBlock.addEventListener('blur', () => sanitizeFree(mapBlock, t => { groupMapText[mapKey2] = t; }));
+      mapBlock.addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        sel.deleteFromDocument();
+        const range = sel.getRangeAt(0);
+        const lines = text.split('\n');
+        lines.forEach(function(line, i) {
+          range.insertNode(document.createTextNode(line));
+          range.collapse(false);
+          if (i < lines.length - 1) {
+            const br = document.createElement('br');
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.collapse(true);
+          }
+        });
+        sel.removeAllRanges();
+        sel.addRange(range);
+        groupMapText[mapKey2] = mapBlock.innerText || '';
+      });
+      mapBlock.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const sel = window.getSelection();
+          if (!sel.rangeCount) return;
+          const range = sel.getRangeAt(0);
+          range.deleteContents();
+          const br = document.createElement('br');
+          range.insertNode(br);
+          // Si le <br> est le dernier nœud, ajouter un <br> sentinel
+          // pour que la nouvelle ligne soit visuellement visible
+          if (!br.nextSibling || (br.nextSibling.nodeType === Node.TEXT_NODE && br.nextSibling.textContent === '')) {
+            const sentinel = document.createElement('br');
+            br.parentNode.insertBefore(sentinel, br.nextSibling);
+          }
+          range.setStartAfter(br);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+          groupMapText[mapKey2] = mapBlock.innerText || '';
+        }
+      });
 
       /* Clear : supprimer uniquement l'image */
       btnClearMap.onclick = () => {

@@ -1,8 +1,0 @@
-mapResource = 
-{
-    ["ResKey_ImageBriefing_17"] = "ADANA1.jpg",
-    ["ResKey_Action_6"] = "Moose.lua",
-    ["ResKey_ImageBriefing_16"] = "Rendu.jpg",
-    ["ResKey_Action_7"] = "Un prêté pour un rendu.lua",
-    ["ResKey_ImageBriefing_18"] = "ADANA2.jpg",
-} -- end of mapResource
