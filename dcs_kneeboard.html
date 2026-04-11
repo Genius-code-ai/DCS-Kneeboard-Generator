@@ -1260,6 +1260,8 @@
     const groupLoadout = {};
     /* Préférences d'unités par groupe (dist: 'nm'|'km', spalt: 'ktft'|'kmhm') */
     const groupUnitPrefs = {};
+    /* Map<string, object> : nom DTC → JSON parsé, chargé depuis le dossier DTC/ du .miz */
+    const dtcFiles = new Map();
 
     /* ════════════════════════════════════════════════════════════════
        UTILITAIRES DE SÉCURITÉ
@@ -1370,6 +1372,25 @@
 
         // APPEL AU PARSER EXTERNE
         miz = window.parseMiz(content, theatre, dictionary);
+
+        /* ── Extraction des fichiers DTC depuis le dossier DTC/ du .miz ── */
+        dtcFiles.clear();
+        const dtcFolder = zip.folder('DTC');
+        if (dtcFolder) {
+          const dtcPromises = [];
+          zip.forEach((relativePath, zipEntry) => {
+            if (relativePath.startsWith('DTC/') && relativePath.endsWith('.dtc') && !zipEntry.dir) {
+              const dtcName = relativePath.replace('DTC/', '').replace('.dtc', '');
+              dtcPromises.push(
+                zipEntry.async('string').then(str => {
+                  try { dtcFiles.set(dtcName, JSON.parse(str)); }
+                  catch(e) { console.warn('DTC parse error for', dtcName, e); }
+                })
+              );
+            }
+          });
+          if (dtcPromises.length) await Promise.all(dtcPromises);
+        }
         /* Vider les caches groupe pour éviter les données stales */
         Object.keys(groupWPs).forEach(k => delete groupWPs[k]);
         Object.keys(groupLoadout).forEach(k => delete groupLoadout[k]);
@@ -1444,6 +1465,7 @@
       Object.keys(groupLoadout).forEach(k => delete groupLoadout[k]);
       Object.keys(groupUnitPrefs).forEach(k => delete groupUnitPrefs[k]);
       Object.keys(groupMapText).forEach(k => delete groupMapText[k]);
+      dtcFiles.clear();
       briefingText = '';
 
       const kbEl = document.getElementById('kbpages');
@@ -1743,31 +1765,54 @@
       const selectedGroups = selectedPkg;
 
       selectedGroups.forEach((g, idx) => {
+        /* ── Application DTC : si le groupe a un dtcName et le fichier est chargé ── */
+        const dtcParsed = (g.dtcName && dtcFiles.size > 0)
+          ? window.applyDtcToGroup(g.dtcName, dtcFiles, miz.theatre, miz.start_time)
+          : null;
+
         /* Init waypoints si pas encore fait */
         if (!groupWPs[g.name]) {
-          groupWPs[g.name] = (g.waypoints || []).slice(0, 20).map((wp, i, arr) => {
-            let hdg = '—', dist = '—';
-            if (i > 0) {
-              const hd = window.calcHdgDist(arr[i - 1].x, arr[i - 1].y, wp.x, wp.y);
-              hdg = hd.hdg; dist = hd.dist;
-            }
-            const distNm = parseFloat(dist) || 0;
-            return {
-              desc: wp.desc || 'WP',
-              hdg,
-              distNm,                              /* NM brut pour conversion */
-              dist,                                /* affiché selon unité groupe */
-              speed: wp.speed || 0,          /* kts brut */
-              speedKmh: wp.speedKmh || 0,          /* km/h brut */
-              alt: wp.alt || 0,          /* ft brut */
-              altM: wp.altM || 0,          /* m brut */
-              eta: wp.eta || '',
-              eta_sec: wp.eta_sec != null ? wp.eta_sec : null,
-              tos: '',
-              note: wp.note || '',
-              coord: String(window.xy2dmm(wp.x, wp.y, miz.theatre))
-            };
-          });
+          /* Priorité DTC : remplace les WP mission si le DTC a des steerpoints */
+          if (dtcParsed && dtcParsed.wps && dtcParsed.wps.length > 0) {
+            groupWPs[g.name] = dtcParsed.wps;
+          } else {
+            groupWPs[g.name] = (g.waypoints || []).slice(0, 30).map((wp, i, arr) => {
+              let hdg = '—', dist = '—';
+              if (i > 0) {
+                const hd = window.calcHdgDist(arr[i - 1].x, arr[i - 1].y, wp.x, wp.y);
+                hdg = hd.hdg; dist = hd.dist;
+              }
+              const distNm = parseFloat(dist) || 0;
+              return {
+                desc: wp.desc || 'WP',
+                hdg,
+                distNm,
+                dist,
+                speed: wp.speed || 0,
+                speedKmh: wp.speedKmh || 0,
+                alt: wp.alt || 0,
+                altM: wp.altM || 0,
+                eta: wp.eta || '',
+                eta_sec: wp.eta_sec != null ? wp.eta_sec : null,
+                tos: '',
+                note: wp.note || '',
+                coord: String(window.xy2dmm(wp.x, wp.y, miz.theatre)),
+                isNavTarget: wp.isNavTarget || false,
+              };
+            });
+          }
+        }
+
+        /* Si DTC disponible, surcharger les canaux radio du groupe */
+        if (dtcParsed) {
+          if (dtcParsed.channelsUHF && dtcParsed.channelsUHF.length > 0) {
+            g.channelsUHF = dtcParsed.channelsUHF;
+            g.freqUHF = dtcParsed.freqUHF;
+          }
+          if (dtcParsed.channelsVHF && dtcParsed.channelsVHF.length > 0) {
+            g.channelsVHF = dtcParsed.channelsVHF;
+            g.freqVHF = dtcParsed.freqVHF;
+          }
         }
         /* Init loadout (toujours, même si pas de waypoints) */
         if (!groupLoadout[g.name]) {
@@ -1936,29 +1981,37 @@
      */
     function makeWpRow(wp, idx, gname) {
       const tr = document.createElement('tr');
-      /* wp.etaDisplay est pré-calculé cumulativement dans buildTable */
-      const eta = wp.etaDisplay != null ? wp.etaDisplay : formatEtaValue(wp.eta, wp.baseToTime);
+      const isNTP = wp.isNavTarget === true;
+
+      /* Style visuel distinctif pour les NavTargetPoints */
+      if (isNTP) {
+        tr.style.cssText = 'background:#e8f0fa !important';
+      }
+
+      const eta = isNTP ? '' : (wp.etaDisplay != null ? wp.etaDisplay : formatEtaValue(wp.eta, wp.baseToTime));
       const note = String(wp.note || '').trim();
       const coord = wp.coord ? String(wp.coord).trim() : '';
-      const speed_alt = `${wp.speed || '--'} / ${wp.alt || '--'}`;
+      const speed_alt = isNTP ? '' : `${wp.speed || '--'} / ${wp.alt || '--'}`;
+
+      const descTd = makeTd(wp.desc, { style: isNTP ? 'font-weight:700;color:#1a3560' : '' });
 
       const tds = [
         makeTd(idx + 1, { center: true }),
-        makeTd(wp.desc),
-        makeTd(note, { style: 'font-size:8.5px;color:#333' }),
+        descTd,
+        makeTd(isNTP ? '' : note, { style: 'font-size:8.5px;color:#333' }),
         makeTd(coord, { style: 'font-size:8.5px;color:#333;font-family:\'Share Tech Mono\',monospace' }),
-        makeTd(wp.hdg, { center: true }),
-        makeTd(formatWpDistance(wp.dist), { right: true, mono: true }),
+        makeTd(isNTP ? '' : wp.hdg, { center: true }),
+        makeTd(isNTP ? '' : formatWpDistance(wp.dist), { right: true, mono: true }),
         makeTd(speed_alt, { right: true, mono: true, style: 'font-size:8px' }),
         (() => {
           const td = makeTd(eta, { center: true, mono: true });
-          /* Marquer la cellule comme éditée manuellement si l'utilisateur la change */
-          td.addEventListener('input', () => { td.dataset.manual = '1'; });
-          /* Stocker l'ETA calculé pour que buildTable puisse le lire */
-          td.dataset.etaCalc = eta;
+          if (!isNTP) {
+            td.addEventListener('input', () => { td.dataset.manual = '1'; });
+            td.dataset.etaCalc = eta;
+          }
           return td;
         })(),
-        makeTd(wp.tos || '', { center: true, mono: true, style: 'font-size:8px' }),
+        makeTd(isNTP ? '' : (wp.tos || ''), { center: true, mono: true, style: 'font-size:8px' }),
       ];
       const del = document.createElement('td');
       del.className = 'row-del';

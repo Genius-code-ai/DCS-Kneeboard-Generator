@@ -256,6 +256,7 @@ function parseTankerOrbit(groupContent, theatre) {
    7. WAYPOINTS  (méthodologie v7 : split sur \n[N] = {)
 ══════════════════════════════════════════════════════════════ */
 function parseGroupWaypoints(groupContent, startTime, task, theatre) {
+  const secsAbsToHHMM = window.secsAbsToHHMM;
   const wps = [];
   let toTime = '', toTime_abs = '', totTime = '', airdrome = null;
 
@@ -334,6 +335,33 @@ function parseGroupWaypoints(groupContent, startTime, task, theatre) {
     });
     wpIdx++;
   }
+  /* ── NavTargetPoints : points de navigation ajoutés à la suite des WP ── */
+  const ntpBlock = findLuaBlock(groupContent, 'NavTargetPoints');
+  if (ntpBlock) {
+    const ntpChunks = ntpBlock.split(/\n[ \t]*\[\d+\]\s*=\s*\{/);
+    ntpChunks.shift();
+    for (const chunk of ntpChunks) {
+      const xM    = chunk.match(/\["x"\]\s*=\s*([-\d.]+)/);
+      const yM    = chunk.match(/\["y"\]\s*=\s*([-\d.]+)/);
+      const txtM  = chunk.match(/\["text_comment"\]\s*=\s*"([^"]*)"/);
+      const idxM  = chunk.match(/\["index"\]\s*=\s*(\d+)/);
+      if (!(xM && yM)) continue;
+      const x = parseFloat(xM[1]), y = parseFloat(yM[1]);
+      const label = txtM ? txtM[1] : (idxM ? 'NTP ' + idxM[1] : 'NTP');
+      wps.push({
+        desc:     label,
+        note:     'NavTargetPoint',
+        alt:      0, altM: 0,
+        speed:    0, speedKmh: 0,
+        distNm:   0,
+        x, y,
+        eta: '', eta_sec: null, etaAbs: '',
+        tos: '', type: 'NavTargetPoint',
+        isNavTarget: true,
+      });
+    }
+  }
+
   return { wps, toTime, toTime_abs: toTime_abs || '', totTime, airdrome };
 }
 
@@ -466,6 +494,132 @@ function detectDcsCategory(luaText, groupGlobalIndex) {
 }
 
 
+/* ══════════════════════════════════════════════════════════════
+   DTC PARSER — extrait waypoints et fréquences radio d'un fichier .dtc (JSON)
+   Structure : data.WYPT.NAV_PTS (coords+notes) + data.COMM.COMM1/COMM2 (fréquences)
+══════════════════════════════════════════════════════════════ */
+
+/**
+ * Parse un fichier DTC (JSON) et retourne waypoints + canaux radio.
+ * @param {object} dtcData   - Objet JSON parsé du .dtc
+ * @param {string} theatre   - Nom de la carte DCS (pour conversion coords)
+ * @param {number} startTime - start_time de la mission (secondes absolues)
+ * @returns {{ wps: Array, channelsUHF: Array, channelsVHF: Array, freqUHF: string|null, freqVHF: string|null }}
+ */
+function parseDtcFile(dtcData, theatre, startTime) {
+  const result = { wps: null, channelsUHF: null, channelsVHF: null, freqUHF: null, freqVHF: null };
+  if (!dtcData || !dtcData.data) return result;
+
+  const data = dtcData.data;
+
+  /* ── Waypoints : NAV_PTS (coords + notes) + NAV_ROUTE[0] (alt + speed + ETA) ── */
+  const wypt = data.WYPT;
+  if (wypt && Array.isArray(wypt.NAV_PTS) && wypt.NAV_PTS.length > 0) {
+    /* Construire un index NAV_ROUTE[0] par wypt_num pour accès rapide */
+    const routeMap = {};
+    if (Array.isArray(wypt.NAV_ROUTE) && wypt.NAV_ROUTE.length > 0) {
+      Object.values(wypt.NAV_ROUTE[0]).forEach(s => {
+        if (s && typeof s.wypt_num === 'number') routeMap[s.wypt_num] = s;
+      });
+    }
+
+    const rawWps = wypt.NAV_PTS.slice(0, 30);
+    result.wps = rawWps.map((pt, i, arr) => {
+      const x = pt.x || 0, y = pt.y || 0;
+      const rEntry = routeMap[pt.wypt_num] || {};
+
+      /* Cap / distance depuis le WP précédent */
+      let hdg = '—', dist = '—', distNm = 0;
+      if (i > 0) {
+        const prev = arr[i - 1];
+        const hd = window.calcHdgDist(prev.x || 0, prev.y || 0, x, y);
+        hdg = hd.hdg; dist = hd.dist; distNm = parseFloat(hd.dist) || 0;
+      }
+
+      /* Alt en feet (le DTC stocke déjà en feet) → on garde tel quel pour alt, altM = conversion */
+      const altFt  = rEntry.alt  != null ? rEntry.alt  : (pt.alt  || 0);
+      const altM   = Math.round(altFt / 3.28084);
+      /* Speed en kts (le DTC stocke en kts) */
+      const speedKts = rEntry.speed != null ? rEntry.speed : 0;
+      const speedKmh = Math.round(speedKts * 1.852);
+
+      /* ETA absolu (secondes) → delta depuis start_time */
+      const etaSec = rEntry.ETA != null ? rEntry.ETA : null;
+      const etaDelta = etaSec != null ? window.secsToDelta(Math.max(0, etaSec - startTime)) : '';
+
+      /* Description : note du NAV_PTS ou numéro de steerpoint */
+      const desc = (pt.note && pt.note.trim()) ? pt.note.trim() : ('STPT' + (pt.wypt_num || (i + 1)));
+
+      return {
+        desc,
+        note:     pt.note || '',
+        hdg, dist, distNm,
+        alt:      altFt,
+        altM,
+        speed:    speedKts,
+        speedKmh,
+        eta:      etaDelta,
+        eta_sec:  etaSec,
+        etaAbs:   etaSec != null ? window.secsToTime(etaSec) : '',
+        tos:      '',
+        x, y,
+        coord:    String(window.xy2dmm(x, y, theatre)),
+        type:     'WP',
+        isNavTarget: false,
+        fromDTC:  true,
+      };
+    });
+  }
+
+  /* ── Fréquences radio : COMM1 = UHF, COMM2 = VHF ── */
+  const comm = data.COMM;
+  if (comm) {
+    const extractChannels = (commBlock) => {
+      if (!commBlock) return [];
+      const channels = [];
+      for (let i = 1; i <= 20; i++) {
+        const ch = commBlock['Channel_' + i];
+        if (ch && ch.frequency != null) {
+          const f = parseFloat(ch.frequency);
+          channels.push(isFinite(f) ? f.toFixed(3) : String(ch.frequency));
+        }
+      }
+      return channels;
+    };
+
+    const uhf = extractChannels(comm.COMM1);
+    const vhf = extractChannels(comm.COMM2);
+
+    if (uhf.length > 0) {
+      result.channelsUHF = uhf;
+      result.freqUHF = uhf[0] || null;
+    }
+    if (vhf.length > 0) {
+      result.channelsVHF = vhf;
+      result.freqVHF = vhf[0] || null;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Expose la fonction pour utilisation depuis le kneeboard principal.
+ * Prend un objet { dtcName, dtcFiles } et retourne les données DTC parsées.
+ * dtcFiles = Map<string, object> : nom → JSON parsé
+ */
+window.applyDtcToGroup = function(dtcName, dtcFiles, theatre, startTime) {
+  if (!dtcName || !dtcFiles) return null;
+  const dtcData = dtcFiles.get(dtcName);
+  if (!dtcData) return null;
+  return parseDtcFile(dtcData, theatre, startTime);
+};
+
+
+/* ══════════════════════════════════════════════════════════════
+   8. PARSEUR PRINCIPAL
+   Méthodologie v7 : ancrage sur ["groupId"] + getEnclosingBlock
+══════════════════════════════════════════════════════════════ */
 window.parseMiz = function (content, theatre, dictionary = {}) {
 
   const translate = s => (s && String(s).startsWith('DictKey')) ? (dictionary[s]||s) : s;
@@ -699,6 +853,13 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
     /* ── Waypoints ── */
     const { wps, toTime, toTime_abs: entry_toTimeAbs, totTime, airdrome } = parseGroupWaypoints(gc, res.start_time, task, theatre);
 
+    /* ── DTC : récupérer le nom du fichier cartouche depuis les unités ──
+       Le bloc ["DTC"] avec Cartridges est au niveau unité, pas groupe.
+       On cherche directement le pattern dans uc pour éviter le ["DTC"] = {} vide du groupe. */
+    let dtcName = null;
+    const dtcNameM = uc.match(/\["DTC"\]\s*=\s*\{[\s\S]*?\["Cartridges"\]\s*=[\s\S]*?\["name"\]\s*=\s*"([^"]+)"/);
+    if (dtcNameM) dtcName = dtcNameM[1];
+
     /* ── Position du groupe ── */
     const xm = gc.match(/\["x"\]\s*=\s*([-\d.]+)/);
     const ym = gc.match(/\["y"\]\s*=\s*([-\d.]+)/);
@@ -735,6 +896,8 @@ window.parseMiz = function (content, theatre, dictionary = {}) {
 
       /* v8 : catégorie brute DCS */
       dcsCategory,
+      /* DTC : nom du fichier cartouche (null si absent) */
+      dtcName,
     };
 
       if (isSup || dcsCategory === 'ship') res.support.push(entry);
