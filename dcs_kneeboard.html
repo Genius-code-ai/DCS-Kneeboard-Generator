@@ -2382,7 +2382,7 @@
       inp.className = 'af-input';
       const isCarrierAf = af && af.isCarrier;
       if (!isCarrierAf) inp.setAttribute('list', dlId);
-      inp.value = af ? (isCarrierAf ? (af.name || af.type || '') : af.name) : '';
+      inp.value = af ? (isCarrierAf ? [af.type || af.name || '', af.tacanCallsign ? `(${af.tacanCallsign})` : ''].filter(Boolean).join(' ') : af.name) : '';
       inp.style.cssText = 'width:100%;border:none;background:transparent;font-size:10px;font-weight:600;color:#111;font-family:"Barlow Condensed",sans-serif;text-align:center';
       if (!isCarrierAf) inp.addEventListener('input', () => syncAirfieldFromBrief(inp, g.name));
       tdAf.appendChild(inp);
@@ -3084,7 +3084,7 @@
         /* Normalisation : carrier ou aéroport classique → même interface */
         const isCarrier = af && af.isCarrier;
         const carrierLabel = isCarrier
-          ? [af.name || af.type || '', af.tacanCallsign ? `(${af.tacanCallsign})` : ''].filter(Boolean).join(' ')
+          ? [af.type || af.name || '', af.tacanCallsign ? `(${af.tacanCallsign})` : ''].filter(Boolean).join(' ')
           : '';
         const afName  = af ? (isCarrier ? carrierLabel                                 : (af.name || '')) : '';
         const afUhf   = af ? (isCarrier ? (af.freq  || '')                             : (af.uhf  !== 'n/a' ? af.uhf  : '')) : '';
@@ -3132,13 +3132,22 @@
       const sameBase = toId !== null && ldId !== null && toId === ldId;
       const noTo    = !g.airdrome;
 
-      /* T/O : ajouter "- Landing" si même base ou si T/O vide */
-      const toLabel  = (sameBase || noTo) ? 'T/O - Landing' : 'T/O';
-      /* ALT : devient "ALT - Landing" si landing est différent du T/O */
+      /* T/O row :
+         - même base départ/arrivée  → "T/O - Landing"  + données de la base
+         - pas de T/O mais landing   → "T/O - Landing"  + données landing
+         - T/O sans landing          → "T/O"            + données T/O
+      */
+      const toLabel  = (sameBase || noTo) && landing ? 'T/O - Landing' : 'T/O';
+      const toAf     = sameBase ? g.airdrome : (noTo && landing ? landing : g.airdrome);
+
+      /* ALT row :
+         - landing différent du T/O et T/O connu → "ALT - Landing" + données landing
+         - sinon ligne ALT vide
+      */
       const altLabel = (!sameBase && !noTo && landing) ? 'ALT - Landing' : 'ALT';
       const altAf    = (!sameBase && !noTo && landing) ? landing : null;
 
-      tbody.appendChild(makeAfRow(toLabel, g.airdrome));
+      tbody.appendChild(makeAfRow(toLabel, toAf));
       tbody.appendChild(makeAfRow(altLabel, altAf));
       tbody.appendChild(makeAfRow('DIV', null));
       return tbl;
