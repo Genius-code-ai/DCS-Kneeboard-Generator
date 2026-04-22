@@ -1248,7 +1248,7 @@
       <div class="left-inner">
         <div class="l-hdr">
           <div class="l-title">DCS Kneeboard <span
-              style="font-size:11px;font-weight:400;opacity:.6;letter-spacing:.05em">v1.0.2</span></div>
+              style="font-size:11px;font-weight:400;opacity:.6;letter-spacing:.05em">v1.0.3</span></div>
           <div class="l-sub">generator · mission card builder</div>
         </div>
 
@@ -1268,7 +1268,7 @@
                 <input type="file" id="miz-inp" accept=".miz">
                 <div class="upzone-ico">⬆</div>
                 <div class="upzone-ttl">Glisser ou cliquer</div>
-                <div class="upzone-sub">Fichier .miz DCS</div>
+                <div class="upzone-sub">Fichier .miz DCS ou .kbsave</div>
               </div>
               <input type="file" id="img-inp" accept="image/*" style="display:none">
               <div id="file-ok" class="file-ok" style="display:none">
@@ -1340,6 +1340,10 @@
         <div class="spacer"></div>
         <div class="page-dots" id="pdots"></div>
         <div class="spacer"></div>
+        <button class="btn btn-sec btn-sm" onclick="document.getElementById('kbsave-inp').click()" title="Charger une sauvegarde .kbsave">📂 Ouvrir</button>
+        <button class="btn btn-sec btn-sm" id="btn-save" disabled onclick="exportKbsave()" title="Sauvegarder l'état complet (partageable)">💾 Sauvegarder</button>
+        <input type="file" id="kbsave-inp" accept=".kbsave" style="display:none">
+        <span style="width:1px;height:20px;background:var(--border2);display:inline-block;margin:0 4px"></span>
         <button class="btn btn-sec btn-sm" onclick="genImages()">🖼 JPG</button>
         <button class="btn btn-sec btn-sm" onclick="genHTML()">🌐 HTML</button>
         <button class="btn btn-sec btn-sm" onclick="window.print()">🖨 Imprimer</button>
@@ -1635,6 +1639,7 @@
         renderGroups();
         initCommsFromGroups();
         document.getElementById('btn-pdf').disabled = false;
+        document.getElementById('btn-save').disabled = false;
         setStatus(`${miz.theatre} — ${miz.groups.length + miz.support.length} groupes`, 100);
       } catch (e) {
         setStatus('Erreur : ' + e.message, 0);
@@ -1730,6 +1735,7 @@
       document.getElementById('upzone').style.display = '';
       document.getElementById('miz-inp').value = '';
       document.getElementById('btn-pdf').disabled = true;
+      document.getElementById('btn-save').disabled = true;
 
       /* Vider les caches de données par groupe */
       Object.keys(groupWPs).forEach(k => delete groupWPs[k]);
@@ -1775,6 +1781,7 @@
       const upzoneEl = document.getElementById('upzone');
       const mizInp = document.getElementById('miz-inp');
       const imgInp = document.getElementById('img-inp');
+      const kbsaveInp = document.getElementById('kbsave-inp');
 
       if (mizInp) {
         mizInp.addEventListener('change', e => {
@@ -1789,6 +1796,13 @@
         });
       }
 
+      if (kbsaveInp) {
+        kbsaveInp.addEventListener('change', e => {
+          if (e.target.files[0]) loadKbsave(e.target.files[0]);
+          kbsaveInp.value = '';
+        });
+      }
+
       if (!upzoneEl) return;
       upzoneEl.ondragover = e => { e.preventDefault(); upzoneEl.classList.add('drag'); };
       upzoneEl.ondragleave = () => upzoneEl.classList.remove('drag');
@@ -1796,7 +1810,9 @@
         e.preventDefault();
         upzoneEl.classList.remove('drag');
         const f = e.dataTransfer.files[0];
-        if (f && f.name.toLowerCase().endsWith('.miz')) loadMiz(f);
+        if (!f) return;
+        if (f.name.toLowerCase().endsWith('.miz')) loadMiz(f);
+        else if (f.name.toLowerCase().endsWith('.kbsave')) loadKbsave(f);
       };
     });
 
@@ -3757,6 +3773,197 @@
     /* ════════════════════════════════════════════════════════════════
        EXPORT PDF (html2canvas + jsPDF)
        ════════════════════════════════════════════════════════════════ */
+
+    /* ════════════════════════════════════════════════════════════════
+       SAUVEGARDE / CHARGEMENT .kbsave  (v1.0.3)
+       Format : JSON autonome — toutes les données pour reconstruire
+       le kneeboard sans avoir besoin du fichier .miz original.
+    ════════════════════════════════════════════════════════════════ */
+
+    function exportKbsave() {
+      if (!miz) { setStatus('Aucune mission chargée', 0); return; }
+
+      /* ── 1. Capturer les cellules éditables depuis le DOM ── */
+      const cells = {};
+      document.querySelectorAll('#kbpages [data-cell-id]').forEach(el => {
+        const key = el.dataset.cellId;
+        cells[key] = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
+          ? el.value
+          : el.innerHTML;
+      });
+
+      /* ── 2. Construire l'objet de sauvegarde ── */
+      const save = {
+        version:      '1.0.3',
+        kbsave:       true,
+        savedAt:      new Date().toISOString(),
+        mizName:      (fd.nom || 'kneeboard'),
+
+        /* Données structurées du .miz (pour reconstruction autonome) */
+        miz: {
+          theatre:    miz.theatre,
+          date:       miz.date,
+          time:       miz.time,
+          sunrise:    miz.sunrise,
+          sunset:     miz.sunset,
+          start_time: miz.start_time,
+          weather:    miz.weather,
+          bullseye:   miz.bullseye,
+          groups:     miz.groups,
+          support:    miz.support,
+          carriers:   miz.carriers,
+          threats:    miz.threats,
+        },
+
+        /* Formulaire gauche */
+        fd:           Object.assign({}, fd),
+
+        /* Sélection des groupes */
+        selPkg:       [...selPkg],
+        selSup:       [...selSup],
+
+        /* Coalition sélectionnée */
+        coalition:    document.getElementById('sel-coalition')?.value || 'blue',
+
+        /* Waypoints et préférences par groupe */
+        groupWPs:         Object.assign({}, groupWPs),
+        groupLoadout:     Object.assign({}, groupLoadout),
+        groupUnitPrefs:   Object.assign({}, groupUnitPrefs),
+
+        /* Comms */
+        uhfComms:     uhfComms,
+        vhfComms:     vhfComms,
+
+        /* Pages supplémentaires */
+        briefExtraPages:  briefExtraPages,
+        groupExtraPages:  Object.assign({}, groupExtraPages),
+
+        /* Images (base64) */
+        briefingImage:    briefingImage,
+        briefingText:     briefingText,
+        groupMapImages:   Object.assign({}, groupMapImages),
+        groupMapText:     Object.assign({}, groupMapText),
+
+        /* Contenu de toutes les cellules éditables */
+        cells,
+      };
+
+      const json = JSON.stringify(save, null, 0); /* compact pour minimiser la taille */
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (fd.nom || 'kneeboard').replace(/[^a-zA-Z0-9_-]/g, '_') + '.kbsave';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      setStatus(`Sauvegarde exportée : ${a.download}`, 100);
+    }
+
+    async function loadKbsave(file) {
+      setStatus('Chargement de la sauvegarde...', 10);
+      try {
+        const text = await file.text();
+        const save = JSON.parse(text);
+
+        if (!save.kbsave || !save.miz) {
+          setStatus('Fichier .kbsave invalide ou corrompu', 0);
+          return;
+        }
+
+        /* ── 1. Restaurer miz (données structurelles) ── */
+        miz = save.miz;
+
+        /* ── 2. Restaurer le formulaire ── */
+        Object.assign(fd, save.fd || {});
+        const AUTO_MAP = {
+          carte: 'f-carte', ivl: 'f-ivl',
+          sr: 'f-sr', ss: 'f-ss',
+          wind: 'f-wind', temp: 'f-temp', qnh: 'f-qnh', vis: 'f-vis',
+          bull: 'f-bull', sam: 'f-sam', air: 'f-air', nom: 'f-nom',
+          irl: 'f-irl', cap: 'f-cap', pen: 'f-pen', roe: 'f-roe', armt: 'f-armt'
+        };
+        Object.entries(AUTO_MAP).forEach(([k, id]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = fd[k] || '';
+        });
+
+        /* ── 3. Restaurer la coalition ── */
+        const coalEl = document.getElementById('sel-coalition');
+        if (coalEl && save.coalition) coalEl.value = save.coalition;
+
+        /* ── 4. Restaurer les sélections ── */
+        selPkg.clear(); selSup.clear();
+        (save.selPkg || []).forEach(n => selPkg.add(n));
+        (save.selSup || []).forEach(n => selSup.add(n));
+
+        /* ── 5. Restaurer les données par groupe ── */
+        Object.keys(groupWPs).forEach(k => delete groupWPs[k]);
+        Object.keys(groupLoadout).forEach(k => delete groupLoadout[k]);
+        Object.keys(groupUnitPrefs).forEach(k => delete groupUnitPrefs[k]);
+        Object.keys(groupMapImages).forEach(k => delete groupMapImages[k]);
+        Object.keys(groupMapText).forEach(k => delete groupMapText[k]);
+        Object.keys(groupExtraPages).forEach(k => delete groupExtraPages[k]);
+
+        Object.assign(groupWPs,       save.groupWPs       || {});
+        Object.assign(groupLoadout,   save.groupLoadout   || {});
+        Object.assign(groupUnitPrefs, save.groupUnitPrefs || {});
+        Object.assign(groupMapImages, save.groupMapImages || {});
+        Object.assign(groupMapText,   save.groupMapText   || {});
+        Object.assign(groupExtraPages, save.groupExtraPages || {});
+
+        /* ── 6. Restaurer les comms ── */
+        uhfComms = save.uhfComms || [];
+        vhfComms = save.vhfComms || [];
+
+        /* ── 7. Restaurer les pages extra briefing ── */
+        briefExtraPages = save.briefExtraPages || [];
+
+        /* ── 8. Restaurer les images et textes briefing ── */
+        briefingImage = save.briefingImage || null;
+        briefingText  = save.briefingText  || '';
+
+        /* ── 9. Mettre à jour l'UI ── */
+        document.getElementById('file-ok').style.display = 'flex';
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('upzone').style.display = 'none';
+        setBadge('bdg-miz', '✓ chargé', 'ok');
+        setBadge('bdg-pkg',
+          `${[...selPkg].length} flight, ${[...selSup].length} support`, 'info');
+        unlockAccs(['ac-pkg']);
+        document.getElementById('btn-pdf').disabled  = false;
+        document.getElementById('btn-save').disabled = false;
+
+        /* ── 10. Rendu ── */
+        renderGroups();
+        renderPreview();
+
+        /* ── 11. Restaurer les cellules éditables depuis cells{} ──
+                  On attend que renderPreview() ait reconstruit le DOM,
+                  puis on applique les valeurs sauvegardées par-dessus
+                  la restauration automatique via data-cell-id.
+                  Ici on fait une passe supplémentaire pour les valeurs
+                  qui auraient pu être écrasées par des données .miz fraîches. ── */
+        if (save.cells) {
+          requestAnimationFrame(() => {
+            Object.entries(save.cells).forEach(([key, val]) => {
+              const el = document.querySelector(`[data-cell-id="${CSS.escape(key)}"]`);
+              if (!el) return;
+              if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                if (el.value !== val) el.value = val;
+              } else {
+                if (el.innerHTML !== val) el.innerHTML = val;
+              }
+            });
+          });
+        }
+
+        setStatus(`Sauvegarde chargée : ${file.name}`, 100);
+      } catch (e) {
+        setStatus('Erreur chargement .kbsave : ' + e.message, 0);
+        console.error(e);
+      }
+    }
 
     async function genPDF() {
       const scaler = document.getElementById('kbpages-scaler');
