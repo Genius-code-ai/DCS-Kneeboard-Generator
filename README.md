@@ -1,4 +1,4 @@
-# DCS Kneeboard Generator — v1.0.3
+# DCS Kneeboard Generator — v1.0.4
 
 Generateur de kneeboards (fiches de vol) pour **DCS World**. Application web 100% front-end, sans serveur : ouvrir le fichier HTML dans un navigateur suffit.
 
@@ -156,6 +156,9 @@ Chargees depuis CDN (aucune installation requise) :
 ---
 
 ## Historique des versions
+
+### v1.0.4
+- **Correction de securite**
 
 ### v1.0.3
 - **Sauvegarde/chargement .kbsave** : format JSON autonome pour partager et reprendre un kneeboard sans le .miz original
